@@ -6,6 +6,7 @@ public class User
 	//Attributs
 	private int userId;
 	private String userName;
+	private String password;
 	private int age;
 	private float rating;
 	private String userRank;
@@ -27,6 +28,10 @@ public class User
 	public String getUserName()
 	{
 		return userName;
+	}
+	public String getPassword()
+	{
+		return password;
 	}
 	public int getAge()
 	{
@@ -79,6 +84,10 @@ public class User
 	public void setUserName(String u)
 	{
 		userName=u;
+	}
+	public void setPassword(String pass)
+	{
+		password=pass;
 	}
 	public void setAge(int a)
 	{
@@ -160,15 +169,15 @@ public class User
 	}
 	
 	//Constructeurs
-	public User() {}
+	public User() {}//User vide
 	
-	public User(int id, String un, int a, char rank, int g, Date d)
+	public User(String un, String pass, int a, char rank, Date d)//Nouveau User
 	{
-		userId=id;
 		userName=un;
+		password=pass;
 		age=a;
 		rating=0;
-		guarantee=g;
+		guarantee=0;
 		inscriptionDate=d;
 		switch(rank)
 		{
@@ -182,5 +191,13 @@ public class User
 			default : 	userRank="Utilisateur";
 				break;
 		}
+	}
+	public User(int id, String name, String pass, int age, float rate, char rank, int tok, int guar, Date dat)//User complet
+	{
+		this(name,pass,age,rank,dat);
+		userId=id;
+		rating=rate;
+		userTokens=tok;
+		guarantee=guar;
 	}
 }
