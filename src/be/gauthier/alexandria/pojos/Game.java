@@ -1,4 +1,4 @@
-package be.gauthier.alexandria;
+package be.gauthier.alexandria.pojos;
 import java.util.*;
 
 public class Game 
@@ -53,7 +53,7 @@ public class Game
 	
 	public void addVersion(Version v)
 	{
-		if(listOfVersions.contains(v))
+		if(!listOfVersions.contains(v))
 			listOfVersions.add(v);
 	}
 	public void removeVersion(Version v)
@@ -64,12 +64,15 @@ public class Game
 	
 	//Constructeurs
 	public Game() {}
-	
-	public Game(int i,String t, String p, int y)
+	public Game(String t, String p, int y)//Nouveau, pas encore dans DB
 	{
-		gameId=i;
 		gameTitle=t;
 		publisher=p;
 		releaseYear=y;
+	}
+	public Game(int i,String t, String p, int y)
+	{
+		this(t,p,y);
+		gameId=i;
 	}
 }

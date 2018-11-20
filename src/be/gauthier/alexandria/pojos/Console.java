@@ -1,4 +1,4 @@
-package be.gauthier.alexandria;
+package be.gauthier.alexandria.pojos;
 import java.util.*;
 
 public class Console 

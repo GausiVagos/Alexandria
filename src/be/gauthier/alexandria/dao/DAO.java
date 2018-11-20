@@ -1,4 +1,4 @@
-package be.gauthier.alexandria;
+package be.gauthier.alexandria.dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;

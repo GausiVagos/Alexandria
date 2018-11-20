@@ -1,33 +1,37 @@
-package be.gauthier.alexandria;
+package be.gauthier.alexandria.pojos;
 import java.util.*;
+
+import be.gauthier.alexandria.dao.DAO;
+import be.gauthier.alexandria.dao.UserDAO;
 
 public class Copy 
 {
 	private int copyId;
-	private User owner;
-	private Game game;
-	private Console console;
+	private int owner;
+	private int game;
+	private int console;
 	private boolean available;
+	
 	private Set<Loan> listOfLoans=new HashSet<>();
 	
-	private int ownerId;
-	private int gameId;
-	private int consoleId;
+	private User ownerObj;
+	private Game gameObj;
+	private Console consoleObj;
 	
 	//Accesseurs
 	public int getCopyId()
 	{
 		return copyId;
 	}
-	public User getOwner()
+	public int getOwner()
 	{
 		return owner;
 	}
-	public Game getGame()
+	public int getGame()
 	{
 		return game;
 	}
-	public Console getConsole()
+	public int getConsole()
 	{
 		return console;
 	}
@@ -41,6 +45,11 @@ public class Copy
 		return listOfLoans;
 	}
 	
+	public User getOwnerObj()
+	{
+		return ownerObj;
+	}
+	
 	//Setteurs
 	
 	public void setCopyId(int i)
@@ -48,29 +57,19 @@ public class Copy
 		if(copyId==0)
 			copyId=i;
 	}
-	public void setOwner(User u)
+	public void setOwner(int u)
 	{
-		if(owner==null)
-		{
-			owner=u;
-			ownerId=u.getUserId();
-		}
+		DAO<User>dao=new UserDAO();
+		owner=u;
 	}
-	public void setGame(Game g)
+	public void setGame(int g)
 	{
-		if(game==null)
-		{
-			game=g;
-			gameId=g.getGameId();
-		}
+		game=g;
+		
 	}
-	public void setConsole(Console c)
+	public void setConsole(int c)
 	{
-		if(console==null)
-		{
-			console=c;
-			consoleId=c.getConsoleId();
-		}
+		console=c;
 	}
 	public void setAvailability(boolean b)
 	{
@@ -86,5 +85,16 @@ public class Copy
 	{
 		if(listOfLoans.contains(l))
 			listOfLoans.remove(l);
+	}
+	
+	//Constructeurs
+	public Copy() {}
+	public Copy(int i, int o, int g, int c, boolean a)
+	{
+		copyId=i;
+		owner=o;
+		game=g;
+		console=c;
+		available=a;
 	}
 }

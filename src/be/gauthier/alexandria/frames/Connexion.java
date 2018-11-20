@@ -1,4 +1,4 @@
-package be.gauthier.alexandria;
+package be.gauthier.alexandria.frames;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;

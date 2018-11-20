@@ -1,4 +1,4 @@
-package be.gauthier.alexandria;
+package be.gauthier.alexandria.pojos;
 
 public class Compatibility 
 {

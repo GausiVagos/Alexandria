@@ -1,4 +1,4 @@
-package be.gauthier.alexandria;
+package be.gauthier.alexandria.pojos;
 import java.util.*;
 
 public class User 
@@ -171,14 +171,14 @@ public class User
 	//Constructeurs
 	public User() {}//User vide
 	
-	public User(String un, String pass, int a, char rank, Date d)//Nouveau User
+	public User(String un, String pass, int a, char rank)//Nouveau User
 	{
 		userName=un;
 		password=pass;
 		age=a;
 		rating=0;
+		userTokens=0;
 		guarantee=0;
-		inscriptionDate=d;
 		switch(rank)
 		{
 			case 'A':
@@ -191,13 +191,54 @@ public class User
 			default : 	userRank="Utilisateur";
 				break;
 		}
+		//La date d'inscription est générée par access lors de l'appel à Create()
 	}
 	public User(int id, String name, String pass, int age, float rate, char rank, int tok, int guar, Date dat)//User complet
 	{
-		this(name,pass,age,rank,dat);
+		this(name,pass,age,rank);
 		userId=id;
 		rating=rate;
 		userTokens=tok;
 		guarantee=guar;
+		inscriptionDate=dat;
+	}
+	
+	//Petite fonction d'affichage, pour le test
+	public void display()
+	{
+		System.out.println("User numéro "+userId+" : "+userName);
+		System.out.println("Inscription : "+inscriptionDate);
+		if(!listOfLends.isEmpty())
+		{
+			System.out.println("Liste des prêts");
+			for(Loan l : listOfLends)
+			{
+				System.out.println(l);
+			}
+		}
+		if(!listOfBorrowings.isEmpty())
+		{
+			System.out.println("Liste des emprunts");
+			for(Loan l : listOfBorrowings)
+			{
+				System.out.println(l);
+			}
+		}
+		if(!listOfReservations.isEmpty())
+		{
+			System.out.println("Liste des réservations");
+			for(Reservation r : listOfReservations)
+			{
+				System.out.println(r);
+			}
+		}
+		if(!listOfCopies.isEmpty())
+		{
+			System.out.println("Liste des copies");
+			for(Copy c : listOfCopies)
+			{
+				System.out.println(c);
+			}
+		}
 	}
 }

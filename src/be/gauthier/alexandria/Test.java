@@ -1,16 +1,16 @@
 package be.gauthier.alexandria;
+import be.gauthier.alexandria.dao.*;
+import be.gauthier.alexandria.pojos.*;
 
 public class Test {
 
 	public static void main(String[] args) 
 	{
-		DAO<User> dao=new UserDAO();
-		User u1=dao.find("1");
-		System.out.println("User numéro 1 : "+u1.getUserName());
-		User u2=dao.find("Vagos");
-		System.out.println("User Vagos : "+u2.getUserId());
-		System.out.println(Ptolemy.login("Vagos", "Wololo"));
-		System.out.println(Ptolemy.login("Vagos", "alexandria"));
+		DAO<Game> dao=new GameDAO();
+		//Game g1=dao.find("2");
+		//System.out.println(g1.getGameTitle()+" : "+g1.getlistOfVersions().size()+" versions");
+		Game g2=new Game("TestJeu","Studio",2018);
+		System.out.println(dao.create(g2));
 	}
 
 }

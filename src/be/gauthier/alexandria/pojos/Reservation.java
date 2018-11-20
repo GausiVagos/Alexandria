@@ -1,34 +1,34 @@
-package be.gauthier.alexandria;
+package be.gauthier.alexandria.pojos;
 import java.util.*;
 
 public class Reservation 
 {
 	private int reservationId;
-	private User applicant;
-	private Game game;
-	private Console console;
+	private int applicant;
+	private int game;
+	private int console;
 	private String reservationStatus;
 	private Date reservationDate;
 	
-	//Clés étrangères
-	private int applicantId;
-	private int gameId;
-	private int consoleId;
+	//Références
+	private User applicantObj;
+	private Game gameObj;
+	private Console consoleObj;
 	
 	//Accesseurs
 	public int getReservationId()
 	{
 		return reservationId;
 	}
-	public User getApplicant()
+	public int getApplicant()
 	{
 		return applicant;
 	}
-	public Game getGame()
+	public int getGame()
 	{
 		return game;
 	}
-	public Console getConsole()
+	public int getConsole()
 	{
 		return console;
 	}
@@ -47,29 +47,23 @@ public class Reservation
 		if(reservationId==0)//Seulement pour l'initialisation d'un objet vide
 			reservationId=i;
 	}
-	public void setApplicant(User a)
+	public void setApplicant(int a)
 	{
-		if(applicant==null) 
-		{
-			applicant=a;
-			applicantId=a.getUserId();
-		}
+		//DAO<User> dao=new UserDAO();
+		applicant=a;
+		//applicantObj=dao.find(Integer.toString(a));
 	}
-	public void setGame(Game g)
+	public void setGame(int g)
 	{
-		if(game==null)
-		{
-			game=g;
-			gameId=g.getGameId();
-		}
+		//DAO<Game>=new GameDAO();	
+		game=g;
+		//gameObj=dao.find(Integer.toString(g));
 	}
-	public void setConsole(Console c)
+	public void setConsole(int c)
 	{
-		if(console==null)
-		{
-			console=c;
-			consoleId=c.getConsoleId();
-		}
+		//DAO<Console> dao=new ConsoleDAO();
+		console=c;
+		//consoleObj=dao.find(Integer.toString(c));
 	}
 	public void setReservationStatus(int stat)
 	{
@@ -91,15 +85,12 @@ public class Reservation
 	//Constructeurs
 	public Reservation() {}
 	
-	public Reservation(int id, User ap, Game ga, Console co, int stat, Date d)
+	public Reservation(int id, int ap, int ga, int co, int stat, Date d)//Nouveau : raccourci pour le statut
 	{
 		reservationId=id;
 		applicant=ap;
-		applicantId=ap.getUserId();
 		game=ga;
-		gameId=ga.getGameId();
 		console=co;
-		consoleId=co.getConsoleId();
 		switch(stat)
 		{
 			case 1 : reservationStatus="En attente";
@@ -110,5 +101,16 @@ public class Reservation
 				break;
 		}
 		reservationDate=d;
+		//Références
+	}
+	public Reservation(int id, int ap, int ga, int co, String stat, Date d)//DB
+	{
+		reservationId=id;
+		applicant=ap;
+		game=ga;
+		console=co;
+		reservationStatus=stat;
+		reservationDate=d;
+		//Références
 	}
 }
