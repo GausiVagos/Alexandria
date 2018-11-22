@@ -1,5 +1,6 @@
 package be.gauthier.alexandria.dao;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -8,31 +9,25 @@ import javax.swing.JOptionPane;
 
 import be.gauthier.alexandria.pojos.*;
 
-public class GameDAO extends DAO<Game> 
+public class LoanDAO extends DAO<Loan> 
 {
-	public GameDAO()
+	public LoanDAO()
 	{
 		super();
 	}
 	
 	@Override
-	public boolean create(Game toAdd) 
+	public boolean create(Loan obj) 
 	{
 		boolean hasWorked=false;
 		Statement stmt=null;
-		String valid="select * from Game where gameTitle='"+toAdd.getGameTitle()+"';";
-		String in="insert into Game(gameTitle,publisher,releaseYear) values('"+toAdd.getGameTitle()+"','"+toAdd.getPublisher()+"',"+toAdd.getReleaseYear()+");";
-		ResultSet res=null;
+		String in="insert into Loan (lender,borrower,startDate,pending,gameCopy) values ("+obj.getLender()+","+obj.getBorrower()+", DATE '"+obj.getStartDate()+"','"+obj.getPending()+"',"+obj.getGameCopy()+");";
 		
 		try
 		{
 			stmt=connect.createStatement();
-			res=stmt.executeQuery(valid);
-			if(!res.next())
-			{
-				stmt.executeUpdate(in);
-				hasWorked=true;
-			}
+			stmt.executeUpdate(in);
+			hasWorked=true;
 			
 		}
 		catch(SQLException e)
@@ -43,8 +38,6 @@ public class GameDAO extends DAO<Game>
 		{
 			try
 			{
-				if(res!=null)
-					res.close();
 				if(stmt!=null)
 					stmt.close();
 			}
@@ -53,22 +46,23 @@ public class GameDAO extends DAO<Game>
 				ex.printStackTrace();
 			}
 		}
+		
+	
 		return hasWorked;
 	}
 
 	@Override
-	public boolean delete(Game del) 
+	public boolean delete(Loan del) 
 	{
 		boolean hasWorked=false;
-		Game toRemove=find(del.getGameTitle());
+		Loan toRemove=find(Integer.toString(del.getLoanId()));
 		if(toRemove!=null)
 		{
 			Statement stmt=null;
-			String delete="delete from Game where gameId="+toRemove.getGameId()+";";
+			String delete="delete from Loan where loanId="+toRemove.getLoanId()+";";
 			try
 			{
 				stmt=connect.createStatement();
-				
 				stmt.executeUpdate(delete);
 				hasWorked=true;
 			}
@@ -90,15 +84,14 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public boolean update(Game modified) 
+	public boolean update(Loan modified) 
 	{
-		
 		boolean hasWorked=false;
-		Game toModify=find(modified.getGameTitle());
+		Loan toModify=find(Integer.toString(modified.getLoanId()));
 		if(toModify!=null)
 		{
 			Statement stmt=null;
-			String modify="update Game set publisher='"+modified.getPublisher()+"', releaseYear="+modified.getReleaseYear()+" where gameId="+modified.getGameId()+";";
+			String modify="update Loan set lender="+modified.getLender()+", borrower="+modified.getBorrower()+", startDate= DATE'"+modified.getStartDate()+"', pending ='"+modified.getPending()+"', gameCopy="+modified.getGameCopy()+" where loanId="+toModify.getLoanId()+";";
 			try
 			{
 				stmt=connect.createStatement();
@@ -107,7 +100,7 @@ public class GameDAO extends DAO<Game>
 			}
 			catch(SQLException ex)
 			{
-				JOptionPane.showMessageDialog(null, "Modification impossible");
+				JOptionPane.showMessageDialog(null, "Modification impossible : "+ex.getMessage());
 			}
 			finally
 			{
@@ -123,10 +116,10 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public Game find(String recherche) 
+	public Loan find(String recherche) 
 	{
-		Game researched=null;
-		//Premier cas : recherche par index
+		Loan researched=null;
+
 		Statement stmt=null;
 		ResultSet res=null;
 		String sql="";
@@ -134,30 +127,18 @@ public class GameDAO extends DAO<Game>
 		try
 		{
 			int index=Integer.parseInt(recherche);
-			sql = "select * from Game where gameId = "+index+";";
-			
-		}
-		catch(NumberFormatException e)//Deuxième cas : recherche par titre
-		{
-			sql = "select * from Game where gameTitle = '"+recherche+"';";
-		}
-		try
-		{
+			sql = "select * from Loan where loanId = "+index+";";
 			stmt=connect.createStatement();
 			res=stmt.executeQuery(sql);
-			 
 			if(res.next())//Pour une raison inconnue, le first() provoque une exception là ou le next() marche parfaitement. Je ne cherche plus à comprendre.
 			{
-				researched=new Game(res.getInt(1),res.getString(2),res.getString(3),res.getInt(4));
-				
-				sql="select * from Version where game = "+researched.getGameId();
-				res=stmt.executeQuery(sql);
-				while(res.next())
-				{
-					researched.addVersion(new Version(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4)));
-				}
-				
-			}
+				researched=new Loan(res.getInt(1),res.getInt(2),res.getInt(3),res.getDate(4),res.getBoolean(5),res.getInt(6));
+			}	
+			
+		}
+		catch(NumberFormatException e)
+		{
+			JOptionPane.showMessageDialog(null, "Entrez un entier");
 		}
 		catch(SQLException ex)
 		{
@@ -177,8 +158,7 @@ public class GameDAO extends DAO<Game>
 				ex.printStackTrace();
 			}
 		}
-		
-		
+
 		return researched;
 	}
 

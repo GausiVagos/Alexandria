@@ -64,13 +64,13 @@ public class Game
 	
 	//Constructeurs
 	public Game() {}
-	public Game(String t, String p, int y)//Nouveau, pas encore dans DB
+	public Game(String t, String p, int y)//Nouveau
 	{
 		gameTitle=t;
 		publisher=p;
 		releaseYear=y;
 	}
-	public Game(int i,String t, String p, int y)
+	public Game(int i,String t, String p, int y)//DB
 	{
 		this(t,p,y);
 		gameId=i;

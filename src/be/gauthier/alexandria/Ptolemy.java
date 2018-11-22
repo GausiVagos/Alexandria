@@ -2,10 +2,8 @@ package be.gauthier.alexandria;
 
 import java.util.*;
 
-import be.gauthier.alexandria.dao.DAO;
-import be.gauthier.alexandria.dao.UserDAO;
-import be.gauthier.alexandria.pojos.Loan;
-import be.gauthier.alexandria.pojos.User;;
+import be.gauthier.alexandria.dao.*;
+import be.gauthier.alexandria.pojos.*;
 
 public class Ptolemy //Couche métier de l'application.
 {
@@ -13,7 +11,7 @@ public class Ptolemy //Couche métier de l'application.
 	
 	public static boolean register(String un, String pa, int age, char rank)
 	{
-		DAO dao = new UserDAO();
+		DAO<User> dao = new UserDAO();
 		User u=new User(un, pa, age, rank);
 		return dao.create(u);
 	}
@@ -31,11 +29,11 @@ public class Ptolemy //Couche métier de l'application.
 		return valid;
 	}
 	
-	public static void ping(Loan l)
+	public static void massivePing(IPingable[] list)
 	{
-		DAO<User> udao=new UserDAO();
-		l.setLenderObj(udao.find(Integer.toString(l.getLender())));
-		l.setBorrowerObj(udao.find(Integer.toString(l.getBorrower())));
-		//l.setGameCopyObj();
+		for(IPingable p : list)
+		{
+			p.ping();
+		}
 	}
 }

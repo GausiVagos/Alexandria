@@ -1,10 +1,10 @@
 package be.gauthier.alexandria.pojos;
 import java.util.*;
 
-import be.gauthier.alexandria.dao.DAO;
-import be.gauthier.alexandria.dao.UserDAO;
+import be.gauthier.alexandria.IPingable;
+import be.gauthier.alexandria.dao.*;
 
-public class Copy 
+public class Copy implements IPingable
 {
 	private int copyId;
 	private int owner;
@@ -14,9 +14,9 @@ public class Copy
 	
 	private Set<Loan> listOfLoans=new HashSet<>();
 	
-	private User ownerObj;
-	private Game gameObj;
-	private Console consoleObj;
+	private User ownerObj=null;
+	private Game gameObj=null;
+	private Console consoleObj=null;
 	
 	//Accesseurs
 	public int getCopyId()
@@ -44,10 +44,17 @@ public class Copy
 	{
 		return listOfLoans;
 	}
-	
 	public User getOwnerObj()
 	{
 		return ownerObj;
+	}
+	public Game getGameObj()
+	{
+		return gameObj;
+	}
+	public Console getConsoleObj()
+	{
+		return consoleObj;
 	}
 	
 	//Setteurs
@@ -61,19 +68,36 @@ public class Copy
 	{
 		DAO<User>dao=new UserDAO();
 		owner=u;
+		ownerObj=dao.find(Integer.toString(u));
 	}
 	public void setGame(int g)
 	{
+		DAO<Game> dao=new GameDAO();
 		game=g;
+		gameObj=dao.find(Integer.toString(g));
 		
 	}
 	public void setConsole(int c)
 	{
+		DAO<Console> dao=new ConsoleDAO();
 		console=c;
+		consoleObj=dao.find(Integer.toString(c));
 	}
 	public void setAvailability(boolean b)
 	{
 		available=b;
+	}
+	public void setOwnerObj(User o)
+	{
+		ownerObj=o;
+	}
+	public void setGameObj(Game g)
+	{
+		gameObj=g;
+	}
+	public void setConsoleObj(Console c)
+	{
+		consoleObj=c;
 	}
 	
 	public void addLoan(Loan l)
@@ -89,12 +113,27 @@ public class Copy
 	
 	//Constructeurs
 	public Copy() {}
-	public Copy(int i, int o, int g, int c, boolean a)
+	public Copy(int o, int g, int c, boolean a)//Nouveau
 	{
-		copyId=i;
 		owner=o;
 		game=g;
 		console=c;
 		available=a;
+	}
+	public Copy(int i, int o, int g, int c, boolean a)
+	{
+		this(o,g,c,a);
+		copyId=i;
+	}
+	
+	@Override
+	public void ping() 
+	{
+		DAO<User> udao=new UserDAO();
+		DAO<Game> gdao=new GameDAO();
+		DAO<Console> cdao=new ConsoleDAO();
+		setOwnerObj(udao.find(Integer.toString(owner)));
+		setGameObj(gdao.find(Integer.toString(game)));
+		setConsoleObj(cdao.find(Integer.toString(console)));
 	}
 }

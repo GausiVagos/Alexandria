@@ -8,20 +8,20 @@ import javax.swing.JOptionPane;
 
 import be.gauthier.alexandria.pojos.*;
 
-public class GameDAO extends DAO<Game> 
+public class CopyDAO extends DAO<Copy> 
 {
-	public GameDAO()
+	public CopyDAO()
 	{
 		super();
 	}
 	
 	@Override
-	public boolean create(Game toAdd) 
+	public boolean create(Copy toAdd) 
 	{
 		boolean hasWorked=false;
 		Statement stmt=null;
-		String valid="select * from Game where gameTitle='"+toAdd.getGameTitle()+"';";
-		String in="insert into Game(gameTitle,publisher,releaseYear) values('"+toAdd.getGameTitle()+"','"+toAdd.getPublisher()+"',"+toAdd.getReleaseYear()+");";
+		String valid="select * from Copy where copyId="+toAdd.getCopyId()+";";
+		String in="insert into Copy(owner,game,console,available) values("+toAdd.getOwner()+","+toAdd.getGame()+","+toAdd.getConsole()+",'"+toAdd.getAvailability()+"');";
 		ResultSet res=null;
 		
 		try
@@ -57,18 +57,17 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public boolean delete(Game del) 
+	public boolean delete(Copy del) 
 	{
 		boolean hasWorked=false;
-		Game toRemove=find(del.getGameTitle());
+		Copy toRemove=find(Integer.toString(del.getCopyId()));
 		if(toRemove!=null)
 		{
 			Statement stmt=null;
-			String delete="delete from Game where gameId="+toRemove.getGameId()+";";
+			String delete="delete from Copy where copyId="+toRemove.getCopyId()+";";
 			try
 			{
 				stmt=connect.createStatement();
-				
 				stmt.executeUpdate(delete);
 				hasWorked=true;
 			}
@@ -90,15 +89,14 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public boolean update(Game modified) 
+	public boolean update(Copy modified) 
 	{
-		
 		boolean hasWorked=false;
-		Game toModify=find(modified.getGameTitle());
+		Copy toModify=find(Integer.toString(modified.getCopyId()));
 		if(toModify!=null)
 		{
 			Statement stmt=null;
-			String modify="update Game set publisher='"+modified.getPublisher()+"', releaseYear="+modified.getReleaseYear()+" where gameId="+modified.getGameId()+";";
+			String modify="update Copy set owner="+modified.getOwner()+", game="+modified.getGame()+", console="+modified.getConsole()+", available ='"+modified.getAvailability()+"where copyId="+modified.getCopyId()+";";
 			try
 			{
 				stmt=connect.createStatement();
@@ -123,10 +121,10 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public Game find(String recherche) 
+	public Copy find(String recherche) 
 	{
-		Game researched=null;
-		//Premier cas : recherche par index
+		Copy researched=null;
+
 		Statement stmt=null;
 		ResultSet res=null;
 		String sql="";
@@ -134,30 +132,24 @@ public class GameDAO extends DAO<Game>
 		try
 		{
 			int index=Integer.parseInt(recherche);
-			sql = "select * from Game where gameId = "+index+";";
-			
-		}
-		catch(NumberFormatException e)//Deuxième cas : recherche par titre
-		{
-			sql = "select * from Game where gameTitle = '"+recherche+"';";
-		}
-		try
-		{
+			sql = "select * from Copy where copyId = "+index+";";
 			stmt=connect.createStatement();
 			res=stmt.executeQuery(sql);
-			 
 			if(res.next())//Pour une raison inconnue, le first() provoque une exception là ou le next() marche parfaitement. Je ne cherche plus à comprendre.
 			{
-				researched=new Game(res.getInt(1),res.getString(2),res.getString(3),res.getInt(4));
-				
-				sql="select * from Version where game = "+researched.getGameId();
+				researched=new Copy(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4),res.getBoolean(5));
+				sql="select * from Loan where gameCopy = "+researched.getCopyId();
 				res=stmt.executeQuery(sql);
 				while(res.next())
 				{
-					researched.addVersion(new Version(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4)));
+					researched.addLoan(new Loan(res.getInt(1),res.getInt(2),res.getInt(3),res.getDate(4),res.getBoolean(5),res.getInt(6)));
 				}
-				
-			}
+			}	
+			
+		}
+		catch(NumberFormatException e)
+		{
+			JOptionPane.showMessageDialog(null, "Entrez un entier");
 		}
 		catch(SQLException ex)
 		{
@@ -177,8 +169,7 @@ public class GameDAO extends DAO<Game>
 				ex.printStackTrace();
 			}
 		}
-		
-		
+
 		return researched;
 	}
 

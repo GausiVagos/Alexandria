@@ -3,37 +3,30 @@ package be.gauthier.alexandria.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 
 import javax.swing.JOptionPane;
 
 import be.gauthier.alexandria.pojos.*;
 
-public class GameDAO extends DAO<Game> 
+public class ReservationDAO extends DAO<Reservation> 
 {
-	public GameDAO()
+	public ReservationDAO()
 	{
 		super();
 	}
 	
 	@Override
-	public boolean create(Game toAdd) 
+	public boolean create(Reservation toAdd) 
 	{
 		boolean hasWorked=false;
 		Statement stmt=null;
-		String valid="select * from Game where gameTitle='"+toAdd.getGameTitle()+"';";
-		String in="insert into Game(gameTitle,publisher,releaseYear) values('"+toAdd.getGameTitle()+"','"+toAdd.getPublisher()+"',"+toAdd.getReleaseYear()+");";
-		ResultSet res=null;
-		
+		String in="insert into Reservation (applicant,game,console,reservationStatus) values ("+toAdd.getApplicant()+","+toAdd.getGame()+","+toAdd.getConsole()+",'"+toAdd.getReservationStatus()+"');";
 		try
 		{
 			stmt=connect.createStatement();
-			res=stmt.executeQuery(valid);
-			if(!res.next())
-			{
-				stmt.executeUpdate(in);
-				hasWorked=true;
-			}
-			
+			stmt.executeUpdate(in);
+			hasWorked=true;
 		}
 		catch(SQLException e)
 		{
@@ -43,8 +36,6 @@ public class GameDAO extends DAO<Game>
 		{
 			try
 			{
-				if(res!=null)
-					res.close();
 				if(stmt!=null)
 					stmt.close();
 			}
@@ -53,22 +44,23 @@ public class GameDAO extends DAO<Game>
 				ex.printStackTrace();
 			}
 		}
+		
+	
 		return hasWorked;
 	}
 
 	@Override
-	public boolean delete(Game del) 
+	public boolean delete(Reservation del) 
 	{
 		boolean hasWorked=false;
-		Game toRemove=find(del.getGameTitle());
+		Reservation toRemove=find(Integer.toString(del.getReservationId()));
 		if(toRemove!=null)
 		{
 			Statement stmt=null;
-			String delete="delete from Game where gameId="+toRemove.getGameId()+";";
+			String delete="delete from Reservation where reservationId="+toRemove.getReservationId()+";";
 			try
 			{
 				stmt=connect.createStatement();
-				
 				stmt.executeUpdate(delete);
 				hasWorked=true;
 			}
@@ -90,15 +82,15 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public boolean update(Game modified) 
+	public boolean update(Reservation modified) 
 	{
-		
 		boolean hasWorked=false;
-		Game toModify=find(modified.getGameTitle());
+		Reservation toModify=find(Integer.toString(modified.getReservationId()));
 		if(toModify!=null)
 		{
 			Statement stmt=null;
-			String modify="update Game set publisher='"+modified.getPublisher()+"', releaseYear="+modified.getReleaseYear()+" where gameId="+modified.getGameId()+";";
+			String modify="update Reservation set applicant="+modified.getApplicant()+", game="+modified.getGame()+", console="+modified.getConsole()+", reservationStatus ='"+modified.getReservationStatus()+"', reservationDate=DATE'"+modified.getReservationDate()+"' where reservationId="+toModify.getReservationId()+";";
+			JOptionPane.showMessageDialog(null, modify);
 			try
 			{
 				stmt=connect.createStatement();
@@ -107,7 +99,7 @@ public class GameDAO extends DAO<Game>
 			}
 			catch(SQLException ex)
 			{
-				JOptionPane.showMessageDialog(null, "Modification impossible");
+				JOptionPane.showMessageDialog(null, "Modification impossible : "+ex.getMessage());
 			}
 			finally
 			{
@@ -123,10 +115,10 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public Game find(String recherche) 
+	public Reservation find(String recherche) 
 	{
-		Game researched=null;
-		//Premier cas : recherche par index
+		Reservation researched=null;
+
 		Statement stmt=null;
 		ResultSet res=null;
 		String sql="";
@@ -134,30 +126,18 @@ public class GameDAO extends DAO<Game>
 		try
 		{
 			int index=Integer.parseInt(recherche);
-			sql = "select * from Game where gameId = "+index+";";
-			
-		}
-		catch(NumberFormatException e)//Deuxième cas : recherche par titre
-		{
-			sql = "select * from Game where gameTitle = '"+recherche+"';";
-		}
-		try
-		{
+			sql = "select * from Reservation where reservationId = "+index+";";
 			stmt=connect.createStatement();
 			res=stmt.executeQuery(sql);
-			 
 			if(res.next())//Pour une raison inconnue, le first() provoque une exception là ou le next() marche parfaitement. Je ne cherche plus à comprendre.
 			{
-				researched=new Game(res.getInt(1),res.getString(2),res.getString(3),res.getInt(4));
-				
-				sql="select * from Version where game = "+researched.getGameId();
-				res=stmt.executeQuery(sql);
-				while(res.next())
-				{
-					researched.addVersion(new Version(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4)));
-				}
-				
-			}
+				researched=new Reservation(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4),res.getString(5),res.getDate(6));
+			}	
+			
+		}
+		catch(NumberFormatException e)
+		{
+			JOptionPane.showMessageDialog(null, "Entrez un entier");
 		}
 		catch(SQLException ex)
 		{
@@ -177,8 +157,7 @@ public class GameDAO extends DAO<Game>
 				ex.printStackTrace();
 			}
 		}
-		
-		
+
 		return researched;
 	}
 

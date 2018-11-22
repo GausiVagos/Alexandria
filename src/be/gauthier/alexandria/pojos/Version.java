@@ -1,8 +1,10 @@
 package be.gauthier.alexandria.pojos;
+import java.util.*;
 
+import be.gauthier.alexandria.IPingable;
 import be.gauthier.alexandria.dao.*;
 
-public class Version 
+public class Version implements IPingable
 {
 	private int game;
 	private int console;
@@ -12,6 +14,9 @@ public class Version
 	//Références
 	private Game gameObj=null;
 	private Console consoleObj=null;
+	
+	private Set<Copy> listOfCopies = new HashSet<>();
+	private Set<Reservation> listOfReservations = new HashSet<>();
 	
 	//Accesseurs
 	public int getGame()
@@ -49,9 +54,9 @@ public class Version
 	}
 	public void setConsole(int c)
 	{
-		//DAO<Console> dao=new ConsoleDAO();
+		DAO<Console> dao=new ConsoleDAO();
 		console=c;
-		//consoleObj=dao.find(Integer.toString(console));
+		consoleObj=dao.find(Integer.toString(console));
 	}
 	public void setTokenValue(int t)
 	{
@@ -60,6 +65,25 @@ public class Version
 	public void setRealValue(int r)
 	{
 		realValue=r;
+	}
+	public void setGameObj(Game g)
+	{
+		gameObj=g;
+	}
+	public void setConsoleObj(Console c)
+	{
+		consoleObj=c;
+	}
+	
+	public void addCopy(Copy c)
+	{
+		if(!listOfCopies.contains(c))
+			listOfCopies.add(c);
+	}
+	public void addReservation(Reservation r)
+	{
+		if(!listOfReservations.contains(r))
+			listOfReservations.add(r);
 	}
 	
 	//Constructeur
@@ -71,5 +95,14 @@ public class Version
 		tokenValue=t;
 		realValue=r;
 		//Les attributs références sont initialisés avec la fonction ping() de Ptolemy, pour éviter la récursivité des constructeurs.
+	}
+	@Override
+	public void ping() 
+	{
+		DAO<Game> gdao=new GameDAO();
+		DAO<Console> cdao=new ConsoleDAO();
+		setGameObj(gdao.find(Integer.toString(game)));
+		setConsoleObj(cdao.find(Integer.toString(console)));
+		
 	}
 }

@@ -8,20 +8,20 @@ import javax.swing.JOptionPane;
 
 import be.gauthier.alexandria.pojos.*;
 
-public class GameDAO extends DAO<Game> 
-{
-	public GameDAO()
+public class ConsoleDAO extends DAO<Console> {
+
+	public ConsoleDAO()
 	{
 		super();
 	}
 	
 	@Override
-	public boolean create(Game toAdd) 
+	public boolean create(Console toAdd) 
 	{
 		boolean hasWorked=false;
 		Statement stmt=null;
-		String valid="select * from Game where gameTitle='"+toAdd.getGameTitle()+"';";
-		String in="insert into Game(gameTitle,publisher,releaseYear) values('"+toAdd.getGameTitle()+"','"+toAdd.getPublisher()+"',"+toAdd.getReleaseYear()+");";
+		String valid="select * from Console where consoleName='"+toAdd.getConsoleName()+"';";
+		String in="insert into Console(consoleName,company,shortName) values('"+toAdd.getConsoleName()+"','"+toAdd.getCompany()+"','"+toAdd.getShortName()+"');";
 		ResultSet res=null;
 		
 		try
@@ -57,18 +57,22 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public boolean delete(Game del) 
+	public boolean delete(Console del) 
 	{
 		boolean hasWorked=false;
-		Game toRemove=find(del.getGameTitle());
+		Console toRemove=find(del.getConsoleName());
 		if(toRemove!=null)
 		{
 			Statement stmt=null;
-			String delete="delete from Game where gameId="+toRemove.getGameId()+";";
+			//La table Compatibility doit être vidée manuellement car le "on delete cascade" ne s'applique pas (2 clés étrangères de la même table)
+			String washOldVersion="delete from Compatibility where oldVersion="+toRemove.getConsoleId()+";";
+			String washRunsOn="delete from Compatibility where runsOn="+toRemove.getConsoleId()+";";
+			String delete="delete from Console where consoleId="+toRemove.getConsoleId()+";";
 			try
 			{
 				stmt=connect.createStatement();
-				
+				stmt.executeUpdate(washOldVersion);
+				stmt.executeUpdate(washRunsOn);
 				stmt.executeUpdate(delete);
 				hasWorked=true;
 			}
@@ -90,15 +94,14 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public boolean update(Game modified) 
+	public boolean update(Console modified) 
 	{
-		
 		boolean hasWorked=false;
-		Game toModify=find(modified.getGameTitle());
+		Console toModify=find(modified.getConsoleName());
 		if(toModify!=null)
 		{
 			Statement stmt=null;
-			String modify="update Game set publisher='"+modified.getPublisher()+"', releaseYear="+modified.getReleaseYear()+" where gameId="+modified.getGameId()+";";
+			String modify="update Console set company='"+modified.getCompany()+"', shortName='"+modified.getShortName()+"' where consoleId="+modified.getConsoleId()+";";
 			try
 			{
 				stmt=connect.createStatement();
@@ -123,9 +126,9 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public Game find(String recherche) 
+	public Console find(String recherche) 
 	{
-		Game researched=null;
+		Console researched=null;
 		//Premier cas : recherche par index
 		Statement stmt=null;
 		ResultSet res=null;
@@ -134,12 +137,12 @@ public class GameDAO extends DAO<Game>
 		try
 		{
 			int index=Integer.parseInt(recherche);
-			sql = "select * from Game where gameId = "+index+";";
+			sql = "select * from Console where consoleId = "+index+";";
 			
 		}
-		catch(NumberFormatException e)//Deuxième cas : recherche par titre
+		catch(NumberFormatException e)//Deuxième cas : recherche par userName
 		{
-			sql = "select * from Game where gameTitle = '"+recherche+"';";
+			sql = "select * from User where consoleName = '"+recherche+"';";
 		}
 		try
 		{
@@ -148,15 +151,32 @@ public class GameDAO extends DAO<Game>
 			 
 			if(res.next())//Pour une raison inconnue, le first() provoque une exception là ou le next() marche parfaitement. Je ne cherche plus à comprendre.
 			{
-				researched=new Game(res.getInt(1),res.getString(2),res.getString(3),res.getInt(4));
+				researched=new Console(res.getInt(1), res.getString(2), res.getString(3), res.getString(4));
+				//Ensuite, on remplit les listes
 				
-				sql="select * from Version where game = "+researched.getGameId();
+				sql="select * from Version where console="+researched.getConsoleId();
 				res=stmt.executeQuery(sql);
 				while(res.next())
 				{
 					researched.addVersion(new Version(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4)));
 				}
 				
+				sql="select * from Compatibility where oldVersion = "+researched.getConsoleId();
+				res=stmt.executeQuery(sql);
+				while(res.next())
+				{
+					researched.addOldVersion(new Compatibility(res.getInt(1),res.getInt(2)));
+				}
+				
+				sql="select * from Compatibility where runsOn = "+researched.getConsoleId();
+				res=stmt.executeQuery(sql);
+				while(res.next())
+				{
+					researched.addRunsOn(new Compatibility(res.getInt(1),res.getInt(2)));
+				}
+				
+				res.close();
+				stmt.close();
 			}
 		}
 		catch(SQLException ex)

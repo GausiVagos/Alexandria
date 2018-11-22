@@ -10,6 +10,7 @@ public class Console
 	private String shortName;
 	
 	//Liaisons
+	private Set<Version> listOfVersions=new HashSet<>();
 	private Set<Compatibility> oldVersion=new HashSet<>();
 	private Set<Compatibility> runsOn=new HashSet<>();
 	
@@ -31,6 +32,10 @@ public class Console
 		return shortName;
 	}
 	
+	public Set<Version> getListOfVersions()
+	{
+		return listOfVersions;
+	}
 	public Set<Compatibility> getOldVersion()
 	{
 		return oldVersion;
@@ -59,6 +64,16 @@ public class Console
 		shortName=s;
 	}
 	
+	public void addVersion(Version v)
+	{
+		if(!listOfVersions.contains(v))
+			listOfVersions.add(v);
+	}
+	public void removeVersion(Version v)
+	{
+		if(!listOfVersions.contains(v))
+			listOfVersions.remove(v);
+	}
 	public void addOldVersion(Compatibility c)
 	{
 		if(!oldVersion.contains(c))
@@ -82,12 +97,15 @@ public class Console
 	
 	//Constructeurs
 		public Console() {}
-		
-		public Console(int i, String n, String c, String s)
+		public Console(String n, String c, String s)//Nouveau
 		{
-			consoleId=i;
 			consoleName=n;
 			company=c;
 			shortName=s;
+		}
+		public Console(int i, String n, String c, String s)
+		{
+			this(n,c,s);
+			consoleId=i;
 		}
 }

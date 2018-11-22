@@ -63,9 +63,7 @@ public class UserDAO extends DAO<User>
 		{
 			Statement stmt=null;
 			String washLends="delete from Loan where lender="+toRemove.getUserId()+";";
-			JOptionPane.showMessageDialog(null, washLends);
 			String washBorrowings="delete from Loan where borrower="+toRemove.getUserId()+";";
-			JOptionPane.showMessageDialog(null, washBorrowings);
 			String delete="delete from User where userId="+toRemove.getUserId()+";";
 			try
 			{
@@ -153,7 +151,6 @@ public class UserDAO extends DAO<User>
 			if(res.next())//Pour une raison inconnue, le first() provoque une exception là ou le next() marche parfaitement. Je ne cherche plus à comprendre.
 			{
 				researched=new User(res.getInt("userId"), res.getString("userName"), res.getString("password"), res.getInt("age"), res.getFloat("rating"), res.getString("userRank").toCharArray()[0], res.getInt("userTokens"), res.getInt("guarantee"), res.getDate("inscriptionDate"));
-				//Ensuite, on remplit les listes
 				
 				sql="select * from Loan where lender = "+researched.getUserId();
 				res=stmt.executeQuery(sql);

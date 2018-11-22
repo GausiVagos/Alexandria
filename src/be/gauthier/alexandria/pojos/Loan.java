@@ -1,7 +1,9 @@
 package be.gauthier.alexandria.pojos;
-import java.util.*;
+import java.sql.*;
+import be.gauthier.alexandria.IPingable;
+import be.gauthier.alexandria.dao.*;
 
-public class Loan 
+public class Loan implements IPingable
 {
 	private int loanId;
 	private int lender;
@@ -10,9 +12,9 @@ public class Loan
 	private boolean pending;
 	private int gameCopy;
 	
-	private User lenderObj;
-	private User borrowerObj;
-	private Copy gameCopyObj;
+	private User lenderObj=null;
+	private User borrowerObj=null;
+	private Copy gameCopyObj=null;
 	
 	//Accesseurs
 	public int getLoanId()
@@ -63,11 +65,15 @@ public class Loan
 	}
 	public void setLender(int l)
 	{
+		DAO<User> dao=new UserDAO();
 		lender=l;
+		lenderObj=dao.find(Integer.toString(lender));
 	}
 	public void setBorrower(int b)
 	{
+		DAO<User> dao=new UserDAO();
 		borrower = b;
+		borrowerObj=dao.find(Integer.toString(borrower));
 	}
 	public void setStartDate(Date d)
 	{
@@ -79,44 +85,54 @@ public class Loan
 	}
 	public void setGameCopy(int gc)
 	{
+		DAO<Copy> dao=new CopyDAO();
 		gameCopy=gc;
+		gameCopyObj=dao.find(Integer.toString(gameCopy));
 	}
 	
 	
 	public void setLenderObj(User l)
 	{
-		if(lenderObj==null)
-		{
-			lenderObj=l;
-		}
+		lenderObj=l;
 	}
 	public void setBorrowerObj(User b)
 	{
-		if(borrowerObj==null)
-		{
-			borrowerObj=b;
-		}
+		borrowerObj=b;
 	}
 	public void setGameCopyObj(Copy c)
 	{
-		if(gameCopyObj==null)
-		{
-			gameCopyObj=c;
-		}
+		gameCopyObj=c;
 	}
 	
 	//Constructeurs
 	
 	public Loan() {}
 	
-	public Loan(int id, int len, int bor, Date d, boolean pen, int gc)
+	public Loan(int len, int bor, Date d, boolean pen, int gc)//Nouveau
 	{
-		loanId=id;
 		lender=len;
 		borrower=bor;
 		startDate=d;
 		pending=pen;
 		gameCopy=gc;
-		//On ne remplit pas les champs références dans le constructeur pour éviter les boucles infinies, mais on peut les remplir en appellannt la fonction ping() de Ptolemy
+	}
+	
+	public Loan(int id, int len, int bor, Date d, boolean pen, int gc)
+	{
+		this(len,bor,d,pen,gc);
+		loanId=id;
+		
+		//On ne remplit pas les champs références dans le constructeur pour éviter les boucles infinies, mais on peut les remplir en appellannt la fonction ping()
+	}
+	
+	@Override
+	public void ping() 
+	{
+		DAO<User> udao=new UserDAO();
+		DAO<Copy> cdao=new CopyDAO();
+		setLenderObj(udao.find(Integer.toString(lender)));
+		setBorrowerObj(udao.find(Integer.toString(borrower)));
+		setGameCopyObj(cdao.find(Integer.toString(gameCopy)));
+		
 	}
 }

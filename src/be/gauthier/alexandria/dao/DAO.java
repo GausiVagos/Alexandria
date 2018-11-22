@@ -10,23 +10,7 @@ public abstract class DAO<T>
 protected static Connection connect = null;
 	
 	public DAO(){
-		
-		try{
-			Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
-			String url = "jdbc:ucanaccess://./alexandria.accdb";
-			connect = DriverManager.getConnection(url);
-		}
-		catch(ClassNotFoundException ex){
-			JOptionPane.showMessageDialog(null, "Classe de driver introuvable" + ex.getMessage());
-			System.exit(0);
-		}
-		catch (SQLException ex) {
-			JOptionPane.showMessageDialog(null, "Erreur JDBC : " + ex.getMessage());
-		}
-		if (connect == null) {
-            JOptionPane.showMessageDialog(null, "La base de données est inaccessible, fermeture du programme.");
-            System.exit(0);
-		}
+		connect=AlexConn.getInstance();
 	}
 	
 	public abstract boolean create(T obj);

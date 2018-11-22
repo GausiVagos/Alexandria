@@ -1,7 +1,10 @@
 package be.gauthier.alexandria.pojos;
-import java.util.*;
+import java.sql.Date;
 
-public class Reservation 
+import be.gauthier.alexandria.IPingable;
+import be.gauthier.alexandria.dao.*;
+
+public class Reservation implements IPingable
 {
 	private int reservationId;
 	private int applicant;
@@ -11,9 +14,9 @@ public class Reservation
 	private Date reservationDate;
 	
 	//Références
-	private User applicantObj;
-	private Game gameObj;
-	private Console consoleObj;
+	private User applicantObj=null;
+	private Game gameObj=null;
+	private Console consoleObj=null;
 	
 	//Accesseurs
 	public int getReservationId()
@@ -41,6 +44,19 @@ public class Reservation
 		return reservationDate;
 	}
 	
+	public User getApplicantObj()
+	{
+		return applicantObj;
+	}
+	public Game getGameObj()
+	{
+		return gameObj;
+	}
+	public Console getConsoleObj()
+	{
+		return consoleObj;
+	}
+	
 	//Setteurs
 	public void setReservationId(int i)
 	{
@@ -49,21 +65,21 @@ public class Reservation
 	}
 	public void setApplicant(int a)
 	{
-		//DAO<User> dao=new UserDAO();
+		DAO<User> dao=new UserDAO();
 		applicant=a;
-		//applicantObj=dao.find(Integer.toString(a));
+		applicantObj=dao.find(Integer.toString(a));
 	}
 	public void setGame(int g)
 	{
-		//DAO<Game>=new GameDAO();	
+		DAO<Game>dao=new GameDAO();	
 		game=g;
-		//gameObj=dao.find(Integer.toString(g));
+		gameObj=dao.find(Integer.toString(g));
 	}
 	public void setConsole(int c)
 	{
-		//DAO<Console> dao=new ConsoleDAO();
+		DAO<Console> dao=new ConsoleDAO();
 		console=c;
-		//consoleObj=dao.find(Integer.toString(c));
+		consoleObj=dao.find(Integer.toString(c));
 	}
 	public void setReservationStatus(int stat)
 	{
@@ -81,13 +97,24 @@ public class Reservation
 	{
 		reservationDate=d;
 	}
+	public void setApplicantObj(User a)
+	{
+		applicantObj=a;
+	}
+	public void setGameObj(Game g)
+	{
+		gameObj=g;
+	}
+	public void setConsoleObj(Console c)
+	{
+		consoleObj=c;
+	}
 	
 	//Constructeurs
 	public Reservation() {}
 	
-	public Reservation(int id, int ap, int ga, int co, int stat, Date d)//Nouveau : raccourci pour le statut
+	public Reservation(int ap, int ga, int co, int stat)//Nouveau : raccourci pour le statut
 	{
-		reservationId=id;
 		applicant=ap;
 		game=ga;
 		console=co;
@@ -100,8 +127,6 @@ public class Reservation
 			default: reservationStatus="Terminée";
 				break;
 		}
-		reservationDate=d;
-		//Références
 	}
 	public Reservation(int id, int ap, int ga, int co, String stat, Date d)//DB
 	{
@@ -111,6 +136,15 @@ public class Reservation
 		console=co;
 		reservationStatus=stat;
 		reservationDate=d;
-		//Références
+	}
+	@Override
+	public void ping() 
+	{
+		DAO<User> udao=new UserDAO();
+		DAO<Game> gdao=new GameDAO();
+		DAO<Console> cdao=new ConsoleDAO();
+		setApplicantObj(udao.find(Integer.toString(applicant)));
+		setGameObj(gdao.find(Integer.toString(game)));
+		setConsoleObj(cdao.find(Integer.toString(console)));
 	}
 }

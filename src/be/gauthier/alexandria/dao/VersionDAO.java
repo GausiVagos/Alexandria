@@ -8,20 +8,20 @@ import javax.swing.JOptionPane;
 
 import be.gauthier.alexandria.pojos.*;
 
-public class GameDAO extends DAO<Game> 
+public class VersionDAO extends DAO<Version> 
 {
-	public GameDAO()
+	public VersionDAO()
 	{
 		super();
 	}
 	
 	@Override
-	public boolean create(Game toAdd) 
+	public boolean create(Version toAdd) 
 	{
 		boolean hasWorked=false;
 		Statement stmt=null;
-		String valid="select * from Game where gameTitle='"+toAdd.getGameTitle()+"';";
-		String in="insert into Game(gameTitle,publisher,releaseYear) values('"+toAdd.getGameTitle()+"','"+toAdd.getPublisher()+"',"+toAdd.getReleaseYear()+");";
+		String valid="select * from Version where game="+toAdd.getGame()+" and console="+toAdd.getConsole()+";";
+		String in="insert into Version(game,console,tokenValue,realValue) values("+toAdd.getGame()+","+toAdd.getConsole()+","+toAdd.getTokenValue()+","+toAdd.getRealValue()+");";
 		ResultSet res=null;
 		
 		try
@@ -57,18 +57,17 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public boolean delete(Game del) 
+	public boolean delete(Version del) 
 	{
 		boolean hasWorked=false;
-		Game toRemove=find(del.getGameTitle());
+		Version toRemove=find(del.getGame()+"/"+del.getConsole());
 		if(toRemove!=null)
 		{
 			Statement stmt=null;
-			String delete="delete from Game where gameId="+toRemove.getGameId()+";";
+			String delete="delete from Version where game="+toRemove.getGame()+" and console="+toRemove.getConsole()+";";
 			try
 			{
 				stmt=connect.createStatement();
-				
 				stmt.executeUpdate(delete);
 				hasWorked=true;
 			}
@@ -90,15 +89,14 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public boolean update(Game modified) 
+	public boolean update(Version modified) 
 	{
-		
 		boolean hasWorked=false;
-		Game toModify=find(modified.getGameTitle());
+		Version toModify=find(modified.getGame()+"/"+modified.getConsole());
 		if(toModify!=null)
 		{
 			Statement stmt=null;
-			String modify="update Game set publisher='"+modified.getPublisher()+"', releaseYear="+modified.getReleaseYear()+" where gameId="+modified.getGameId()+";";
+			String modify="update Version set tokenValue="+modified.getTokenValue()+", realValue ="+modified.getRealValue()+"where game="+toModify.getGame()+" and console="+toModify.getConsole()+";";
 			try
 			{
 				stmt=connect.createStatement();
@@ -107,7 +105,7 @@ public class GameDAO extends DAO<Game>
 			}
 			catch(SQLException ex)
 			{
-				JOptionPane.showMessageDialog(null, "Modification impossible");
+				JOptionPane.showMessageDialog(null, "Suppression impossible");
 			}
 			finally
 			{
@@ -123,46 +121,41 @@ public class GameDAO extends DAO<Game>
 	}
 
 	@Override
-	public Game find(String recherche) 
+	public Version find(String recherche) 
 	{
-		Game researched=null;
-		//Premier cas : recherche par index
 		Statement stmt=null;
-		ResultSet res=null;
+		Version researched=null;
 		String sql="";
-		
+		ResultSet res=null;
 		try
 		{
-			int index=Integer.parseInt(recherche);
-			sql = "select * from Game where gameId = "+index+";";
-			
-		}
-		catch(NumberFormatException e)//Deuxième cas : recherche par titre
-		{
-			sql = "select * from Game where gameTitle = '"+recherche+"';";
-		}
-		try
-		{
+			String[] parts=recherche.split("/");
+			int g=Integer.parseInt(parts[0]);
+			int c=Integer.parseInt(parts[1]);
+			sql="select * from Version where game="+g+" and console="+c;
 			stmt=connect.createStatement();
 			res=stmt.executeQuery(sql);
-			 
-			if(res.next())//Pour une raison inconnue, le first() provoque une exception là ou le next() marche parfaitement. Je ne cherche plus à comprendre.
+			if(res.next())
 			{
-				researched=new Game(res.getInt(1),res.getString(2),res.getString(3),res.getInt(4));
+				researched=new Version(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4));
 				
-				sql="select * from Version where game = "+researched.getGameId();
+				//Listes
+				sql="select * frop Copy where game="+g+" and console="+c;
 				res=stmt.executeQuery(sql);
 				while(res.next())
 				{
-					researched.addVersion(new Version(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4)));
+					researched.addCopy(new Copy(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4),res.getBoolean(5)));
 				}
 				
+				sql="select * from Reservation where game="+g+" and console="+c;
+				res=stmt.executeQuery(sql);
+				while(res.next())
+				{
+					researched.addReservation(new Reservation(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4),res.getString(5),res.getDate(6)));
+				}
 			}
 		}
-		catch(SQLException ex)
-		{
-			JOptionPane.showMessageDialog(null, "Erreur de requête");
-		}
+		catch(Exception e){}
 		finally
 		{
 			try
@@ -177,8 +170,6 @@ public class GameDAO extends DAO<Game>
 				ex.printStackTrace();
 			}
 		}
-		
-		
 		return researched;
 	}
 

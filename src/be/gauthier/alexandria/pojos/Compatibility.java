@@ -1,53 +1,70 @@
 package be.gauthier.alexandria.pojos;
 
-public class Compatibility 
+import be.gauthier.alexandria.IPingable;
+import be.gauthier.alexandria.dao.*;
+
+public class Compatibility implements IPingable
 {
-	private Console oldVersion;
-	private Console runsOn;
+	private int oldVersion;
+	private int runsOn;
 	
-	//Les clés étrangères forment aussi la clé primaire concaténée,
-	//on pourrait donc en avoir besoin pour identifier un enregistrement
-	private int oldVersionId;
-	private int runsOnId;
+	private Console oldVersionObj=null;
+	private Console runsOnObj=null;
 	
 	//Accesseurs
-	public Console getOldVersion()
+	public int getOldVersion()
 	{
 		return oldVersion;
 	}
-	public Console getRunsOn()
+	public int getRunsOn()
 	{
 		return runsOn;
 	}
-	public int getOldVersionId()
+	public Console getOldVersionObj()
 	{
-		return oldVersionId;
+		return oldVersionObj;
 	}
-	public int getRunsOnId()
+	public Console getRunsOnObj()
 	{
-		return runsOnId;
+		return runsOnObj;
 	}
 	
 	//Setteurs
-	public void setOldVersion(Console c)
+	public void setOldVersion(int c)
 	{
+		DAO<Console> dao=new ConsoleDAO();
 		oldVersion=c;
-		oldVersionId=c.getConsoleId();
+		oldVersionObj=dao.find(Integer.toString(c));
 	}
-	public void setRunsOn(Console c)
+	public void setRunsOn(int c)
 	{
+		DAO<Console> dao=new ConsoleDAO();
 		runsOn=c;
-		runsOnId=c.getConsoleId();
+		runsOnObj=dao.find(Integer.toString(c));
+	}
+	public void setOldVersionObj(Console o)
+	{
+		oldVersionObj=o;
+	}
+	public void setRunsOnObj(Console r)
+	{
+		runsOnObj=r;
 	}
 	
 	//Constructeurs
 	public Compatibility() {}
 	
-	public Compatibility(Console o, Console r)
+	public Compatibility(int o, int r)
 	{
 		oldVersion=o;
 		runsOn=r;
-		oldVersionId=o.getConsoleId();
-		runsOnId=r.getConsoleId();
+		//Références instanciées par Ptolemy.ping() ou les setteurs
+	}
+	@Override
+	public void ping() 
+	{
+		DAO<Console> dao=new ConsoleDAO();
+		setOldVersionObj(dao.find(Integer.toString(oldVersion)));
+		setRunsOnObj(dao.find(Integer.toString(runsOn)));
 	}
 }
