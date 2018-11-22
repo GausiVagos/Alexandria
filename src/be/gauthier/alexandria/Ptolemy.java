@@ -9,14 +9,15 @@ public class Ptolemy //Couche métier de l'application.
 {
 	//Fonctions liées User
 	
-	public static boolean register(String un, String pa, int age, char rank)
+	public static User register(String un, String pa, int age, char rank)
 	{
 		DAO<User> dao = new UserDAO();
 		User u=new User(un, pa, age, rank);
-		return dao.create(u);
+		dao.create(u);
+		return u;
 	}
 	
-	public static boolean login(String log, String pass)
+	public static User login(String log, String pass)
 	{
 		boolean valid=false;
 		DAO<User> dao=new UserDAO();
@@ -26,7 +27,7 @@ public class Ptolemy //Couche métier de l'application.
 			if(u.getPassword().equals(pass))
 				valid=true;
 		}
-		return valid;
+		return u;
 	}
 	
 	public static void massivePing(IPingable[] list)
@@ -35,5 +36,13 @@ public class Ptolemy //Couche métier de l'application.
 		{
 			p.ping();
 		}
+	}
+	
+	public static String getAnswer(char grade)
+	{
+		if(grade=='a')
+			return "Sphinx";
+		else
+			return "42";
 	}
 }

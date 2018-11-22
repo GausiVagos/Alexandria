@@ -4,7 +4,7 @@ import java.util.*;
 public class User 
 {
 	//Attributs
-	private int userId;
+	private int userId=0;
 	private String userName;
 	private String password;
 	private int age;
