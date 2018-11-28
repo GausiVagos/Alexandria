@@ -16,12 +16,10 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import be.gauthier.alexandria.Ptolemy;
-import be.gauthier.alexandria.dao.DAO;
-import be.gauthier.alexandria.dao.UserDAO;
 import be.gauthier.alexandria.pojos.User;
 
 public class RegisterFrame extends JFrame {
-
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField log;
 	private JPasswordField pass;
@@ -29,7 +27,6 @@ public class RegisterFrame extends JFrame {
 	private JTextField age;
 
 	public RegisterFrame() {
-		DAO<User> dao=new UserDAO();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -101,10 +98,12 @@ public class RegisterFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) 
 			{
 				String login=log.getText().toString();
+				@SuppressWarnings("deprecation")
 				String password=pass.getText().toString();
+				@SuppressWarnings("deprecation")
 				String confirm=conf.getText().toString();
 				String sAge=age.getText().toString();
-				if(!login.isEmpty()&&!password.isEmpty()&&!confirm.isEmpty()&&!sAge.isEmpty())
+				if(!login.isEmpty()&&!password.isEmpty()&&!confirm.isEmpty()&&!sAge.isEmpty()&&password.equals(confirm))
 				{
 					try
 					{
@@ -130,6 +129,10 @@ public class RegisterFrame extends JFrame {
 									h.setVisible(true);
 									dispose();
 								}
+								else
+								{
+									JOptionPane.showMessageDialog(null, "Enregistrement impossible. Veuillez essayer avec un autre pseudonyme, SVP");
+								}
 							}
 						}
 					}
@@ -143,5 +146,16 @@ public class RegisterFrame extends JFrame {
 		btnSinscrire.setForeground(new Color(34, 139, 34));
 		btnSinscrire.setBounds(335, 190, 89, 23);
 		contentPane.add(btnSinscrire);
+		
+		JButton btnRetour = new JButton("Retour");
+		btnRetour.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ConnectionFrame c=new ConnectionFrame();
+				c.setVisible(true);
+				dispose();
+			}
+		});
+		btnRetour.setBounds(10, 227, 89, 23);
+		contentPane.add(btnRetour);
 	}
 }

@@ -66,7 +66,7 @@ public class User
 	{
 		return listOfBorrowings;
 	}
-	public Set<Reservation> getListOfReservation()
+	public Set<Reservation> getListOfReservations()
 	{
 		return listOfReservations;
 	}
@@ -177,7 +177,7 @@ public class User
 		password=pass;
 		age=a;
 		rating=0;
-		userTokens=0;
+		userTokens=20;
 		guarantee=0;
 		switch(rank)
 		{

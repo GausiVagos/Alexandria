@@ -17,12 +17,10 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
 import be.gauthier.alexandria.Ptolemy;
-import be.gauthier.alexandria.dao.DAO;
-import be.gauthier.alexandria.dao.UserDAO;
 import be.gauthier.alexandria.pojos.User;
 
 public class ConnectionFrame extends JFrame {
-
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JPasswordField pass;
 	private JTextField log;
@@ -54,7 +52,7 @@ public class ConnectionFrame extends JFrame {
 		}
 		else
 		{
-			JOptionPane.showMessageDialog(null,"Mauvaise combinaison login/mot de passe. "+attempts+" tentatives restantes.");
+			JOptionPane.showMessageDialog(null,"Mauvaise combinaison login/mot de passe. "+attempts+" tentative(s) restantes.");
 		}
 	}
 
@@ -62,7 +60,6 @@ public class ConnectionFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public ConnectionFrame() {
-		DAO<User> dao=new UserDAO();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -102,6 +99,7 @@ public class ConnectionFrame extends JFrame {
 		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String login=log.getText().toString();
+				@SuppressWarnings("deprecation")
 				String password=pass.getText().toString();
 				if(!login.isEmpty()&&!password.isEmpty())
 				{
@@ -112,7 +110,10 @@ public class ConnectionFrame extends JFrame {
 						h.setVisible(true);
 						dispose();
 					}
-					securityCheck();
+					else
+					{
+						securityCheck();
+					}	
 				}
 			}
 		});

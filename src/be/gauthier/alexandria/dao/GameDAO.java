@@ -3,10 +3,13 @@ package be.gauthier.alexandria.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import be.gauthier.alexandria.pojos.*;
+import be.gauthier.alexandria.pojos.Game;
+import be.gauthier.alexandria.pojos.Version;
 
 public class GameDAO extends DAO<Game> 
 {
@@ -181,5 +184,45 @@ public class GameDAO extends DAO<Game>
 		
 		return researched;
 	}
-
+	
+	public LinkedList<Game> getAll()
+	{
+		LinkedList<Game> researched=new LinkedList<Game>();
+		//Premier cas : recherche par index
+		Statement stmt=null;
+		ResultSet res=null;
+		String sql="select * from Game";
+		
+		try
+		{
+			stmt=connect.createStatement();
+			res=stmt.executeQuery(sql);
+			 
+			while(res.next())//Pour une raison inconnue, le first() provoque une exception là ou le next() marche parfaitement. Je ne cherche plus à comprendre.
+			{
+				researched.add(new Game(res.getInt(1),res.getString(2),res.getString(3),res.getInt(4)));	
+			}
+		}
+		catch(SQLException ex)
+		{
+			JOptionPane.showMessageDialog(null, "Erreur de requête");
+		}
+		finally
+		{
+			try
+			{
+				if(res!=null)
+					res.close();
+				if(stmt!=null)
+					stmt.close();
+			}
+			catch(SQLException ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+		
+		
+		return researched;
+	}
 }

@@ -3,10 +3,13 @@ package be.gauthier.alexandria.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
 
-import be.gauthier.alexandria.pojos.*;
+import be.gauthier.alexandria.pojos.Compatibility;
+import be.gauthier.alexandria.pojos.Console;
+import be.gauthier.alexandria.pojos.Version;
 
 public class ConsoleDAO extends DAO<Console> {
 
@@ -142,7 +145,7 @@ public class ConsoleDAO extends DAO<Console> {
 		}
 		catch(NumberFormatException e)//Deuxième cas : recherche par userName
 		{
-			sql = "select * from User where consoleName = '"+recherche+"';";
+			sql = "select * from Console where consoleName = '"+recherche+"';";
 		}
 		try
 		{
@@ -201,5 +204,44 @@ public class ConsoleDAO extends DAO<Console> {
 		
 		return researched;
 	}
-
+	public LinkedList<Console> getAll()
+	{
+		LinkedList<Console> researched=new LinkedList<Console>();
+		//Premier cas : recherche par index
+		Statement stmt=null;
+		ResultSet res=null;
+		String sql="select * from Console";
+		
+		try
+		{
+			stmt=connect.createStatement();
+			res=stmt.executeQuery(sql);
+			 
+			while(res.next())//Pour une raison inconnue, le first() provoque une exception là ou le next() marche parfaitement. Je ne cherche plus à comprendre.
+			{
+				researched.add(new Console(res.getInt(1),res.getString(2),res.getString(3),res.getString(4)));
+			}
+		}
+		catch(SQLException ex)
+		{
+			JOptionPane.showMessageDialog(null, "Erreur de requête");
+		}
+		finally
+		{
+			try
+			{
+				if(res!=null)
+					res.close();
+				if(stmt!=null)
+					stmt.close();
+			}
+			catch(SQLException ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+		
+		
+		return researched;
+	}
 }
