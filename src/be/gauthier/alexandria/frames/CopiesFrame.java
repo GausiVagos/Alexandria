@@ -18,6 +18,7 @@ import javax.swing.border.EmptyBorder;
 
 import be.gauthier.alexandria.dao.CopyDAO;
 import be.gauthier.alexandria.dao.DAO;
+import be.gauthier.alexandria.dao.UserDAO;
 import be.gauthier.alexandria.pojos.Copy;
 import be.gauthier.alexandria.pojos.User;
 
@@ -55,8 +56,6 @@ public class CopiesFrame extends JFrame {
 			indexes.add(c.getCopyId());
 		}
 		JList listOfCopies = new JList<>(list);
-		//listOfCopies.setBounds(10, 105, 564, 150);
-		//contentPane.add(listOfCopies);
 		
 		JButton btnDelete = new JButton("Supprimer la copie s\u00E9lectionn\u00E9e");
 		btnDelete.addActionListener(new ActionListener() {
@@ -112,6 +111,42 @@ public class CopiesFrame extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(listOfCopies);
 		scrollPane.setBounds(10, 61, 564, 150);
 		contentPane.add(scrollPane);
+		
+		JButton btnChange = new JButton("Changer la disponibilit\u00E9");
+		btnChange.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(!listOfCopies.isSelectionEmpty())
+				{
+					
+					DefaultListModel model = (DefaultListModel) listOfCopies.getModel();
+					int pos=listOfCopies.getSelectedIndex();
+					int id=indexes.get(pos);
+					Copy copy=dao.find(Integer.toString(id));
+					String msg="Etes-vous sûr de vouloir rendre cette copie ";
+					msg+= copy.getAvailability()? "indisponible?" : "disponible?";
+					if(copy!=null)
+					{
+						if(JOptionPane.showConfirmDialog(null, msg, "Modification", JOptionPane.OK_CANCEL_OPTION)==0)
+						{
+							if(copy.getAvailability())
+								copy.setAvailability(false);
+							else
+								copy.setAvailability(true);
+							copy.ping();
+							String row="Id : "+copy.getCopyId()+" / Jeu : "+copy.getGameObj().getGameTitle()+" / Console : "+copy.getConsoleObj().getShortName()+" / ";
+							row+= copy.getAvailability()? "Disponible" : "Indisponible";
+							model.set(pos, row);
+							dao.update(copy);
+							UserDAO udao=new UserDAO();
+							currUser=udao.find(currUser.getUserName());
+						}
+					}
+				}
+			}
+		});
+		btnChange.setBackground(Color.ORANGE);
+		btnChange.setBounds(10, 258, 230, 25);
+		contentPane.add(btnChange);
 		
 		
 	}
