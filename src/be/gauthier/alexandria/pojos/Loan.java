@@ -108,19 +108,19 @@ public class Loan implements IPingable
 	
 	public Loan() {}
 	
-	public Loan(int len, int bor, Date d, boolean pen, int gc)//Nouveau
+	public Loan(int len, int bor, boolean pen, int gc)//Nouveau
 	{
 		lender=len;
 		borrower=bor;
-		startDate=d;
 		pending=pen;
 		gameCopy=gc;
 	}
 	
 	public Loan(int id, int len, int bor, Date d, boolean pen, int gc)
 	{
-		this(len,bor,d,pen,gc);
+		this(len,bor,pen,gc);
 		loanId=id;
+		startDate=d;
 		
 		//On ne remplit pas les champs références dans le constructeur pour éviter les boucles infinies, mais on peut les remplir en appellannt la fonction ping()
 	}

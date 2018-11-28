@@ -96,7 +96,7 @@ public class CopyDAO extends DAO<Copy>
 		if(toModify!=null)
 		{
 			Statement stmt=null;
-			String modify="update Copy set owner="+modified.getOwner()+", game="+modified.getGame()+", console="+modified.getConsole()+", available ='"+modified.getAvailability()+"where copyId="+modified.getCopyId()+";";
+			String modify="update Copy set owner="+modified.getOwner()+", game="+modified.getGame()+", console="+modified.getConsole()+", available ='"+modified.getAvailability()+"' where copyId="+modified.getCopyId()+";";
 			try
 			{
 				stmt=connect.createStatement();

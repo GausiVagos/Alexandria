@@ -3,11 +3,12 @@ package be.gauthier.alexandria.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
+import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
 
-import be.gauthier.alexandria.pojos.*;
+import be.gauthier.alexandria.pojos.Reservation;
+import be.gauthier.alexandria.pojos.Version;
 
 public class ReservationDAO extends DAO<Reservation> 
 {
@@ -160,5 +161,44 @@ public class ReservationDAO extends DAO<Reservation>
 
 		return researched;
 	}
-
+	
+	public LinkedList<Reservation> findForAVersion(Version v)
+	{
+		LinkedList<Reservation> reserv=new LinkedList<Reservation>();
+		Statement stmt=null;
+		ResultSet res=null;
+		String sql="";
+		
+		try
+		{
+			sql = "select * from Reservation where game="+v.getGame()+" and console = "+v.getConsole()+" and reservationStatus='En attente'";
+			stmt=connect.createStatement();
+			res=stmt.executeQuery(sql);
+			while(res.next())
+			{
+				reserv.add(new Reservation(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4),res.getString(5),res.getDate(6)));
+			}	
+			
+		}
+		catch(SQLException ex)
+		{
+			JOptionPane.showMessageDialog(null, "Erreur de requête");
+		}
+		finally
+		{
+			try
+			{
+				if(res!=null)
+					res.close();
+				if(stmt!=null)
+					stmt.close();
+			}
+			catch(SQLException ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+		
+		return reserv;
+	}
 }

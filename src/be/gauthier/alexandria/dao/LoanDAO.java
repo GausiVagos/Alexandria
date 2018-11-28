@@ -21,7 +21,7 @@ public class LoanDAO extends DAO<Loan>
 	{
 		boolean hasWorked=false;
 		Statement stmt=null;
-		String in="insert into Loan (lender,borrower,startDate,pending,gameCopy) values ("+obj.getLender()+","+obj.getBorrower()+", DATE '"+obj.getStartDate()+"','"+obj.getPending()+"',"+obj.getGameCopy()+");";
+		String in="insert into Loan (lender,borrower,pending,gameCopy) values ("+obj.getLender()+","+obj.getBorrower()+",'"+obj.getPending()+"',"+obj.getGameCopy()+");";
 		
 		try
 		{

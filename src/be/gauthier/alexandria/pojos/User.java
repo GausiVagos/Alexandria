@@ -18,7 +18,7 @@ public class User
 	private Set<Loan> listOfLends=new HashSet<>();
 	private Set<Loan> listOfBorrowings=new HashSet<>();
 	private Set<Reservation> listOfReservations=new HashSet<>();
-	private Set<Copy> listOfCopies=new HashSet<>();
+	private LinkedList<Copy> listOfCopies=new LinkedList<Copy>();
 	
 	//Accesseurs
 	public int getUserId()
@@ -70,7 +70,7 @@ public class User
 	{
 		return listOfReservations;
 	}
-	public Set<Copy> getListOfCopies()
+	public LinkedList<Copy> getListOfCopies()
 	{
 		return listOfCopies;
 	}

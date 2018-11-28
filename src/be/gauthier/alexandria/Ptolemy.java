@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import be.gauthier.alexandria.dao.DAO;
+import be.gauthier.alexandria.dao.ReservationDAO;
 import be.gauthier.alexandria.dao.UserDAO;
 import be.gauthier.alexandria.pojos.Console;
 import be.gauthier.alexandria.pojos.Copy;
@@ -145,5 +146,110 @@ public class Ptolemy //Couche métier de l'application.
 			lg.add(v.getGameObj());
 		}
 		return lg;
+	}
+	
+	public static Reservation getPriorityReservation(Version v)
+	{
+		ReservationDAO rdao=new ReservationDAO();
+		Reservation prio=null;
+		LinkedList<Reservation> list=rdao.findForAVersion(v);
+		if(!list.isEmpty())//Pas de réservation concernant cette version
+		{
+			if(list.size()==1)
+				prio=list.getFirst();
+			else
+			{
+				//On départage selon le nombre de crédits
+				LinkedList<Reservation> basedOnTokens=new LinkedList<Reservation>();
+				
+				Reservation max=list.getFirst();
+				max.ping();
+				basedOnTokens.add(max);
+				for(Reservation r : list)
+				{
+					r.ping();
+					if(r.getApplicantObj().getUserTokens()>max.getApplicantObj().getUserTokens())
+					{
+						basedOnTokens.clear();
+						max=r;
+						basedOnTokens.add(max);
+					}
+					else if(r.getApplicantObj().getUserTokens()==max.getApplicantObj().getUserTokens() && r.getApplicantObj().getUserId()!=max.getApplicantObj().getUserId())
+						basedOnTokens.add(r);
+				}
+				if(basedOnTokens.size()==1)
+					prio=basedOnTokens.getFirst();
+				else
+				{
+					//On départage selon la plus ancienne réservation
+					LinkedList<Reservation> basedOnDate=new LinkedList<Reservation>();
+					Reservation oldest=basedOnTokens.getFirst();
+					basedOnDate.add(oldest);
+					
+					for(Reservation r : basedOnTokens)
+					{
+						if(r.getReservationDate().before(oldest.getReservationDate()))
+						{
+							basedOnDate.clear();
+							oldest=r;
+							basedOnDate.add(oldest);
+						}
+						else if(r.getReservationDate().equals(oldest.getReservationDate()) && r.getReservationId()!=oldest.getReservationId())
+							basedOnDate.add(r);
+					}
+					if(basedOnDate.size()==1)
+						prio=basedOnDate.getFirst();
+					else
+					{
+						//On départage par l'ancienneté des utilisateurs
+						LinkedList<Reservation> basedOnSeniority=new LinkedList<Reservation>();
+						Reservation senior=basedOnDate.getFirst();
+						basedOnSeniority.add(senior);
+						
+						for(Reservation r : basedOnDate)
+						{
+							if(r.getApplicantObj().getInscriptionDate().before(senior.getReservationDate()))
+							{
+								basedOnSeniority.clear();
+								senior=r;
+								basedOnSeniority.add(senior);
+							}
+							else if(r.getApplicantObj().getInscriptionDate().equals(senior.getReservationDate()))
+								basedOnSeniority.add(r);
+						}
+						if(basedOnSeniority.size()==1)
+							prio=basedOnSeniority.getFirst();
+						else
+						{
+							//On départage selon l'âge
+							LinkedList<Reservation> basedOnAge=new LinkedList<Reservation>();
+							senior=basedOnSeniority.getFirst();
+							basedOnAge.add(senior);
+							
+							for(Reservation r : basedOnSeniority)
+							{
+								if(r.getApplicantObj().getAge()>senior.getApplicantObj().getAge())
+								{
+									basedOnAge.clear();
+									senior=r;
+									basedOnAge.add(senior);
+								}
+								else if(r.getApplicantObj().getAge()==senior.getApplicantObj().getAge() && r.getApplicantObj().getUserId()!=senior.getApplicantObj().getUserId())
+									basedOnAge.add(r);
+							}
+							if(basedOnAge.size()==1)
+								prio=basedOnAge.getFirst();
+							else
+							{
+								//Dernier recours : l'aléatoire
+								prio=basedOnAge.get((int) (Math.random() * (basedOnAge.size())));
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return prio;
 	}
 }

@@ -103,42 +103,50 @@ public class RegisterFrame extends JFrame {
 				@SuppressWarnings("deprecation")
 				String confirm=conf.getText().toString();
 				String sAge=age.getText().toString();
-				if(!login.isEmpty()&&!password.isEmpty()&&!confirm.isEmpty()&&!sAge.isEmpty()&&password.equals(confirm))
+				try
 				{
-					try
+					int test=Integer.parseInt(login);
+					JOptionPane.showMessageDialog(null,"Veuillez inclure au moins un caractère non-numérique dans votre pseudo.");
+				}
+				catch(NumberFormatException er)
+				{
+					if(!login.isEmpty()&&!password.isEmpty()&&!confirm.isEmpty()&&!sAge.isEmpty()&&password.equals(confirm))
 					{
-						int age=Integer.parseInt(sAge);
-						if(age<=10)
+						try
 						{
-							JOptionPane.showMessageDialog(null,"Veuillez entrer un age valide, SVP.");
-						}
-						
-						else
-						{
-							char rank = rdA.isSelected()? 'a' : rdM.isSelected()? 'm' : 'u';
-							if(rank!='u')
+							int age=Integer.parseInt(sAge);
+							if(age<=10)
 							{
-								String sRank= rank=='a'? "administrateur" : "modérateur";
-								String res=JOptionPane.showInputDialog("Vous vous apprêtez à créér un "+sRank+", veuillez entrer le mot de passe correspondant à ce rang :");
-								if(!res.equals(Ptolemy.getAnswer(rank)))
-									rank='u';
-								User newUser=Ptolemy.register(login, password, age, rank);
-								if(newUser!=null)
+								JOptionPane.showMessageDialog(null,"Veuillez entrer un age valide, SVP.");
+							}
+							
+							else
+							{
+								char rank = rdA.isSelected()? 'a' : rdM.isSelected()? 'm' : 'u';
+								if(rank!='u')
 								{
-									HomeFrame h=new HomeFrame(newUser);
-									h.setVisible(true);
-									dispose();
-								}
-								else
-								{
-									JOptionPane.showMessageDialog(null, "Enregistrement impossible. Veuillez essayer avec un autre pseudonyme, SVP");
+									String sRank= rank=='a'? "administrateur" : "modérateur";
+									String res=JOptionPane.showInputDialog("Vous vous apprêtez à créér un "+sRank+", veuillez entrer le mot de passe correspondant à ce rang :");
+									if(!res.equals(Ptolemy.getAnswer(rank)))
+										rank='u';
+									User newUser=Ptolemy.register(login, password, age, rank);
+									if(newUser!=null)
+									{
+										HomeFrame h=new HomeFrame(newUser);
+										h.setVisible(true);
+										dispose();
+									}
+									else
+									{
+										JOptionPane.showMessageDialog(null, "Enregistrement impossible. Veuillez essayer avec un autre pseudonyme, SVP");
+									}
 								}
 							}
 						}
-					}
-					catch(NumberFormatException ex)
-					{
-						JOptionPane.showMessageDialog(null,"Veuillez entrer une valeur numérique dans le champ Age.");
+						catch(NumberFormatException ex)
+						{
+							JOptionPane.showMessageDialog(null,"Veuillez entrer une valeur numérique dans le champ Age.");
+						}
 					}
 				}			
 			}
