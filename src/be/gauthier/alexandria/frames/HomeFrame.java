@@ -101,6 +101,13 @@ public class HomeFrame extends JFrame {
 		contentPane.add(lblReserv);
 		
 		JButton btnReserv = new JButton("Voir vos r\u00E9servations");
+		btnReserv.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ReservationsFrame r=new ReservationsFrame(currUser);
+				r.setVisible(true);
+				dispose();
+			}
+		});
 		btnReserv.setBounds(349, 159, 175, 23);
 		contentPane.add(btnReserv);
 	}

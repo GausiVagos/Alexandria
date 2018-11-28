@@ -18,6 +18,8 @@ import be.gauthier.alexandria.pojos.Version;
 public class Ptolemy //Couche métier de l'application.
 {
 	//Fonctions liées User
+	public static String adminAnswer="N'est pas mort ce qui à jamais dort";
+	public static String modoAnswer="42";
 	
 	public static User register(String un, String pa, int age, char rank)
 	{
@@ -53,10 +55,10 @@ public class Ptolemy //Couche métier de l'application.
 	
 	public static String getAnswer(char grade)
 	{
-		if(grade=='a')
-			return "N'est pas mort ce qui à jamais dort";
+		if(grade=='a' || grade=='A')
+			return adminAnswer;
 		else
-			return "42";
+			return modoAnswer;
 	}
 	
 	public static Set<Copy> getAvailableCopies(User u)

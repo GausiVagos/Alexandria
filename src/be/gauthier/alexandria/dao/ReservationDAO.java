@@ -27,7 +27,14 @@ public class ReservationDAO extends DAO<Reservation>
 		{
 			stmt=connect.createStatement();
 			stmt.executeUpdate(in);
-			hasWorked=true;
+			
+			String sql="select max(reservationId) from Reservation where applicant="+toAdd.getApplicant()+" and game="+toAdd.getGame()+" and console="+toAdd.getConsole();
+			ResultSet i=stmt.executeQuery(sql);
+			if(i.next())
+			{
+				toAdd.setReservationId(i.getInt(1));
+				hasWorked=true;
+			}
 		}
 		catch(SQLException e)
 		{
@@ -91,7 +98,6 @@ public class ReservationDAO extends DAO<Reservation>
 		{
 			Statement stmt=null;
 			String modify="update Reservation set applicant="+modified.getApplicant()+", game="+modified.getGame()+", console="+modified.getConsole()+", reservationStatus ='"+modified.getReservationStatus()+"', reservationDate=DATE'"+modified.getReservationDate()+"' where reservationId="+toModify.getReservationId()+";";
-			JOptionPane.showMessageDialog(null, modify);
 			try
 			{
 				stmt=connect.createStatement();

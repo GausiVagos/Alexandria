@@ -1,9 +1,11 @@
 package be.gauthier.alexandria.frames;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Date;
 import java.util.LinkedList;
 
 import javax.swing.DefaultListModel;
@@ -33,15 +35,16 @@ import be.gauthier.alexandria.pojos.Reservation;
 import be.gauthier.alexandria.pojos.User;
 import be.gauthier.alexandria.pojos.Version;
 
-public class NewCopyFrame extends JFrame {
+public class NewReservationFrame extends JFrame {
+
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private User currUser;
-	GameDAO gdao;
-	ConsoleDAO cdao;
-	VersionDAO vdao;
-	CopyDAO copyDao;
-	UserDAO udao;
+	private UserDAO udao;
+	private ReservationDAO rdao;
+	private VersionDAO vdao;
+	private GameDAO gdao;
+	private ConsoleDAO cdao;
 	DefaultListModel<String> listG;
 	LinkedList<Integer> indexesG;
 	JList listOfGames;
@@ -51,13 +54,15 @@ public class NewCopyFrame extends JFrame {
 	LinkedList<Integer> indexesC;
 	JList listOfConsoles;
 	JScrollPane scrollPaneC;
-	
-	public NewCopyFrame(User u) {
+
+	public NewReservationFrame(User u) {
 		currUser=u;
+		udao=new UserDAO();
+		rdao=new ReservationDAO();
+		vdao=new VersionDAO();
 		gdao=new GameDAO();
 		cdao=new ConsoleDAO();
-		vdao=new VersionDAO();
-
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 700, 350);
 		contentPane = new JPanel();
@@ -77,10 +82,10 @@ public class NewCopyFrame extends JFrame {
 		setListOfConsoles(cdao.getAll());
 		listOfConsoles = new JList<>(listC);
 		scrollPaneC = new JScrollPane(listOfConsoles);
-		scrollPaneC.setBounds(424, 69, 250, 200);
+		scrollPaneC.setBounds(424, 67, 250, 200);
 		contentPane.add(scrollPaneC);
 		
-		JLabel lblAjoutDeCopie = new JLabel("Ajout de copie");
+		JLabel lblAjoutDeCopie = new JLabel("Ajout de r\u00E9servation");
 		lblAjoutDeCopie.setHorizontalAlignment(SwingConstants.CENTER);
 		lblAjoutDeCopie.setFont(new Font("Papyrus", Font.PLAIN, 42));
 		lblAjoutDeCopie.setForeground(new Color(139, 69, 19));
@@ -94,85 +99,12 @@ public class NewCopyFrame extends JFrame {
 				if(!listOfGames.isSelectionEmpty())
 				{
 					setListOfConsoles(Ptolemy.consolesFromVersions(vdao.findFromGame(Integer.toString(indexesG.get(listOfGames.getSelectedIndex())))));
-					/*String msg ="";
-					for(Console c : Ptolemy.consolesFromVersions(vdao.findFromGame(Integer.toString(indexesG.get(listOfGames.getSelectedIndex())))))
-					{
-						msg+=c.getShortName()+" ";
-					}
-					JOptionPane.showMessageDialog(null, msg);*/
 				}
 					
 			}
 		});
 		btnSearch.setBounds(270, 67, 94, 23);
 		contentPane.add(btnSearch);
-		
-		JButton btnAdd = new JButton("Ajouter");
-		btnAdd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(!listOfGames.isSelectionEmpty()&&!listOfConsoles.isSelectionEmpty())
-				{
-					int game=indexesG.get(listOfGames.getSelectedIndex());
-					int console=indexesC.get(listOfConsoles.getSelectedIndex());
-					Version v=vdao.find(game+"/"+console);
-					if(v!=null)
-					{
-						v.ping();
-						int choice=JOptionPane.showConfirmDialog(null, "Version trouvée : "+v.getGameObj().getGameTitle()+" / "+v.getConsoleObj().getShortName()+System.getProperty("line.separator")+"Voulez vous rendre cette copie déjà disponible?");					
-						if(choice!=JOptionPane.CANCEL_OPTION)
-						{
-							copyDao=new CopyDAO();
-							boolean av= choice==JOptionPane.YES_OPTION? true : false;
-							Copy newCopy=new Copy(currUser.getUserId(),game,console, av);
-							if(copyDao.create(newCopy))
-							{
-								//On recherche à nouveau le user pour que la nouvelle copie s'affiche (ainsi que son id)
-								udao=new UserDAO();
-								currUser=udao.find(currUser.getUserName());
-								
-								if(av)//Si la copie est mise disponible, on regarde si des réservations concernent cette version.
-								{
-									Reservation prior=Ptolemy.getPriorityReservation(vdao.find(game+"/"+console));
-									if(prior!=null)//Si c'est le cas, Ptolemy renverra celle avec la priorité la plus élevée.
-									{
-										prior.ping();
-										
-										Copy complete=currUser.getListOfCopies().getLast();
-										JOptionPane.showMessageDialog(null, "L'utilisateur "+prior.getApplicantObj().getUserName()+" a réservé cette version! Le prêt commence dès maintenant."+System.getProperty("line.separator")+"(Oui, nous vivons dans un monde utopique sans temps de trajet)");
-										//Un nouveau prêt est créé, et certaines valeurs sont ajustées pour correspondre à cette situation.
-										Loan l=new Loan(currUser.getUserId(),prior.getApplicant(),true,complete.getCopyId());
-										LoanDAO ldao=new LoanDAO();
-										ldao.create(l);
-										
-										complete.setAvailability(false);
-										copyDao.update(complete);
-										
-										ReservationDAO rdao=new ReservationDAO();
-										prior.setReservationStatus(2);
-										rdao.update(prior);
-										
-										currUser=udao.find(currUser.getUserName());//On actualise encore pour avoir tous les prêts
-									}
-								}
-								
-								
-								CopiesFrame c=new CopiesFrame(currUser);
-								c.setVisible(true);
-								dispose();
-							}
-							else
-							{
-								JOptionPane.showMessageDialog(null, "Création impossible, veuillez réessayer plus tard");
-							}
-						}
-						
-					}
-				}
-			}
-		});
-		btnAdd.setBackground(new Color(143, 188, 143));
-		btnAdd.setBounds(270, 246, 144, 23);
-		contentPane.add(btnAdd);
 		
 		JButton btnResetG = new JButton("Restaurer");
 		btnResetG.addActionListener(new ActionListener() {
@@ -198,28 +130,80 @@ public class NewCopyFrame extends JFrame {
 				if(!listOfConsoles.isSelectionEmpty())
 				{
 					setListOfGames(Ptolemy.gamesFromVersions(vdao.findFromConsole(Integer.toString(indexesC.get(listOfConsoles.getSelectedIndex())))));
-					/*String msg ="";
-					for(Game g : Ptolemy.gamesFromVersions(vdao.findFromConsole(Integer.toString(indexesC.get(listOfConsoles.getSelectedIndex())))))
-					{
-						msg+=g.getGameTitle()+" ";
-					}
-					JOptionPane.showMessageDialog(null, msg);*/
 				}
 			}
 		});
 		btnFiltrer.setBounds(320, 101, 94, 23);
 		contentPane.add(btnFiltrer);
 		
-		JButton button = new JButton("Retour");
+		JButton button = new JButton("Ajouter");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				CopiesFrame c=new CopiesFrame(currUser);
-				c.setVisible(true);
+				if(!listOfGames.isSelectionEmpty()&&!listOfConsoles.isSelectionEmpty())
+				{
+					int game=indexesG.get(listOfGames.getSelectedIndex());
+					int console=indexesC.get(listOfConsoles.getSelectedIndex());
+					Version v=vdao.find(game+"/"+console);
+					if(v!=null)
+					{
+						v.ping();
+						int choice=JOptionPane.showConfirmDialog(null,"Version trouvée : "+v.getGameObj().getGameTitle()+" / "+v.getConsoleObj().getShortName()+System.getProperty("line.separator")+"Confirmez-vous cette réservation?","Confirmation",JOptionPane.OK_CANCEL_OPTION);					
+						if(choice!=JOptionPane.CANCEL_OPTION)
+						{
+							//int ap, int ga, int co, int stat
+							Reservation r=new Reservation(currUser.getUserId(), game, console, 1);
+							if(rdao.create(r))
+							{
+								JOptionPane.showMessageDialog(null, "Réservation "+r.getReservationId()+" réussie");
+								//Reservation complete=rdao.find(Integer.toString(r.getReservationId()));
+								CopyDAO copyDao=new CopyDAO();
+								Copy leastBorrowed=copyDao.findLeastBorrowed(v);
+								Reservation complete=rdao.find(Integer.toString(r.getReservationId()));
+								complete.setReservationStatus(2);
+								rdao.update(complete);
+								if(leastBorrowed!=null)
+								{
+									leastBorrowed.ping();
+									JOptionPane.showMessageDialog(null, "L'utilisateur "+leastBorrowed.getOwnerObj().getUserName()+" met à votre disposition une copie de "+leastBorrowed.getGameObj().getGameTitle()+" sur "+leastBorrowed.getConsoleObj().getShortName()+" dès maintenant!"
+											+System.getProperty("line.separator")+"(Oui, nous vivons dans une utopie sans temps de trajet)");
+									
+									Loan l=new Loan(leastBorrowed.getOwnerObj().getUserId(),currUser.getUserId(),true,leastBorrowed.getCopyId());
+									LoanDAO ldao=new LoanDAO();
+									ldao.create(l);
+									
+									leastBorrowed.setAvailability(false);
+									copyDao.update(leastBorrowed);
+									
+									currUser=udao.find(currUser.getUserName());
+								}
+								
+								ReservationsFrame rf=new ReservationsFrame(currUser);
+								rf.setVisible(true);
+								dispose();
+							}
+							else
+							{
+								JOptionPane.showMessageDialog(null, "Impossible de créer cette réservation, réessayez plus tard");
+							}
+						}
+					}
+				}
+			}
+		});
+		button.setBackground(new Color(143, 188, 143));
+		button.setBounds(270, 246, 144, 23);
+		contentPane.add(button);
+		
+		JButton button_1 = new JButton("Retour");
+		button_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ReservationsFrame r=new ReservationsFrame(currUser);
+				r.setVisible(true);
 				dispose();
 			}
 		});
-		button.setBounds(10, 277, 89, 23);
-		contentPane.add(button);
+		button_1.setBounds(10, 277, 89, 23);
+		contentPane.add(button_1);
 	}
 	private void setListOfGames(LinkedList<Game> games)
 	{
@@ -244,3 +228,5 @@ public class NewCopyFrame extends JFrame {
 		}		
 	}
 }
+
+
