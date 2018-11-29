@@ -156,8 +156,7 @@ public class NewReservationFrame extends JFrame {
 							{
 								JOptionPane.showMessageDialog(null, "Réservation "+r.getReservationId()+" réussie");
 								//Reservation complete=rdao.find(Integer.toString(r.getReservationId()));
-								CopyDAO copyDao=new CopyDAO();
-								Copy leastBorrowed=copyDao.findLeastBorrowed(v);
+								Copy leastBorrowed=Ptolemy.findLeastBorrowed(v);
 								Reservation complete=rdao.find(Integer.toString(r.getReservationId()));
 								complete.setReservationStatus(2);
 								rdao.update(complete);
@@ -172,6 +171,7 @@ public class NewReservationFrame extends JFrame {
 									ldao.create(l);
 									
 									leastBorrowed.setAvailability(false);
+									CopyDAO copyDao=new CopyDAO();
 									copyDao.update(leastBorrowed);
 									
 									currUser=udao.find(currUser.getUserName());

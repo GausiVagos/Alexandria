@@ -1,12 +1,20 @@
 package be.gauthier.alexandria;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import be.gauthier.alexandria.dao.DAO;
+import javax.swing.JOptionPane;
+
+import be.gauthier.alexandria.dao.AlexConn;
+import be.gauthier.alexandria.dao.CopyDAO;
 import be.gauthier.alexandria.dao.ReservationDAO;
 import be.gauthier.alexandria.dao.UserDAO;
+import be.gauthier.alexandria.dao.VersionDAO;
 import be.gauthier.alexandria.pojos.Console;
 import be.gauthier.alexandria.pojos.Copy;
 import be.gauthier.alexandria.pojos.Game;
@@ -18,23 +26,27 @@ import be.gauthier.alexandria.pojos.Version;
 public class Ptolemy //Couche métier de l'application.
 {
 	//Fonctions liées User
-	public static String adminAnswer="N'est pas mort ce qui à jamais dort";
-	public static String modoAnswer="42";
+	private static String adminAnswer="N'est pas mort ce qui à jamais dort";
+	private static String modoAnswer="42";
+	private static Connection connect=AlexConn.getInstance();
+	private static UserDAO udao = new UserDAO();
+	private static ReservationDAO rdao=new ReservationDAO();
+	private static VersionDAO vdao=new VersionDAO();
+	private static CopyDAO cdao=new CopyDAO();
 	
 	public static User register(String un, String pa, int age, char rank)
 	{
-		DAO<User> dao = new UserDAO();
+		
 		User u=new User(un, pa, age, rank);
-		if(dao.create(u))
-			return dao.find(u.getUserName());//On retourne la version complète du User
+		if(udao.create(u))
+			return udao.find(u.getUserName());//On retourne la version complète du User
 		else
 			return null;
 	}
 	
 	public static User login(String log, String pass)
 	{
-		DAO<User> dao=new UserDAO();
-		User u=dao.find(log);
+		User u=udao.find(log);
 		if(u!=null && u.getPassword().equals(pass))
 		{
 			return u;
@@ -121,13 +133,6 @@ public class Ptolemy //Couche métier de l'application.
 		return list;
 	}
 	
-	public static boolean addTokens(User u, int i)
-	{
-		DAO<User> dao=new UserDAO();
-		u.setUserTokens(u.getUserTokens()+i);
-		return dao.update(u);
-	}
-	
 	public static LinkedList<Console> consolesFromVersions(LinkedList<Version> versions)
 	{
 		LinkedList<Console> lc=new LinkedList<Console>();
@@ -152,7 +157,6 @@ public class Ptolemy //Couche métier de l'application.
 	
 	public static Reservation getPriorityReservation(Version v)
 	{
-		ReservationDAO rdao=new ReservationDAO();
 		Reservation prio=null;
 		LinkedList<Reservation> list=rdao.findForAVersion(v);
 		if(!list.isEmpty())//Pas de réservation concernant cette version
@@ -253,5 +257,129 @@ public class Ptolemy //Couche métier de l'application.
 		}
 		
 		return prio;
+	}
+	
+	public static HashSet<CatalogRow> getCatalog()
+	{
+		HashSet<CatalogRow> catalog=new HashSet<>();
+		Statement stmt=null;
+		ResultSet res=null;
+		String sql="Select game, console, count(*) from Copy where available=true group by game, console";
+		try
+		{
+			stmt=connect.createStatement();
+			res=stmt.executeQuery(sql);
+			
+			while(res.next())
+			{
+				Version v=vdao.find(res.getInt(1)+"/"+res.getInt(2));
+				if(v!=null)
+				{
+					CatalogRow cr=new CatalogRow(v,res.getInt(3));
+					catalog.add(cr);
+				}
+			}
+		}
+		catch(SQLException ex) {}
+		finally
+		{
+			try
+			{
+				if(res!=null)
+					res.close();
+				if(stmt!=null)
+					stmt.close();
+			}
+			catch(SQLException ex){}
+		}
+		
+		return catalog;
+	}
+	
+	public LinkedList<Copy> findAvailableCopies(Version v)
+	{
+		LinkedList<Copy> list=new LinkedList<Copy>();
+		Statement stmt=null;
+		ResultSet res=null;
+		String sql="select * from Copy where game="+v.getGame()+" and console="+v.getConsole()+" and available='true';";
+		
+		try
+		{
+			stmt=connect.createStatement();
+			res=stmt.executeQuery(sql);
+			
+			while(res.next())
+			{
+				list.add(new Copy(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4),res.getBoolean(5)));
+			}
+		}
+		catch(SQLException ex)
+		{
+			JOptionPane.showMessageDialog(null, "Erreur de requête");
+		}
+		finally
+		{
+			try
+			{
+				if(res!=null)
+					res.close();
+				if(stmt!=null)
+					stmt.close();
+			}
+			catch(SQLException ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+		
+		return list;
+	}
+	
+	public static Copy findLeastBorrowed(Version v)
+	{
+		Copy c=null;
+		Statement stmt=null;
+		ResultSet res=null;
+		String sql1="select copyId from Copy where game="+v.getGame()+" and console="+v.getConsole()+" and available=true and copyId not in (select copyId from Copy inner join Loan on Copy.copyId=Loan.gameCopy)";
+		String sql2="select copyId, count(*) from Copy inner join Loan on Copy.copyId=Loan.gameCopy where game="+v.getGame()+" and console="+v.getConsole()+" and available=true group by copyId order by count(*) ASC";
+		
+		try
+		{
+			stmt=connect.createStatement();
+			res=stmt.executeQuery(sql1);
+
+			if(res.next())
+			{
+				c=cdao.find(Integer.toString(res.getInt(1)));
+			}
+			else
+			{
+				res=stmt.executeQuery(sql2);
+				if(res.next())
+				{
+					c=cdao.find(Integer.toString(res.getInt(1)));
+				}
+			}
+		}
+		catch(SQLException ex)
+		{
+			JOptionPane.showMessageDialog(null, "Erreur de requête");
+		}
+		finally
+		{
+			try
+			{
+				if(res!=null)
+					res.close();
+				if(stmt!=null)
+					stmt.close();
+			}
+			catch(SQLException ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+		
+		return c;
 	}
 }

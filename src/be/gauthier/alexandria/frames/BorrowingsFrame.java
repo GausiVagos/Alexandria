@@ -79,7 +79,7 @@ public class BorrowingsFrame extends JFrame {
 		JButton btnAdd = new JButton("Ajouter un emprunt");
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				NewReservationFrame nr=new NewReservationFrame(currUser);
+				NewBorrowingFrame nr=new NewBorrowingFrame(currUser);
 				nr.setVisible(true);
 				dispose();
 			}
