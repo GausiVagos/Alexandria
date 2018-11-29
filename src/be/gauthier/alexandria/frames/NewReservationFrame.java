@@ -150,15 +150,13 @@ public class NewReservationFrame extends JFrame {
 						int choice=JOptionPane.showConfirmDialog(null,"Version trouvée : "+v.getGameObj().getGameTitle()+" / "+v.getConsoleObj().getShortName()+System.getProperty("line.separator")+"Confirmez-vous cette réservation?","Confirmation",JOptionPane.OK_CANCEL_OPTION);					
 						if(choice!=JOptionPane.CANCEL_OPTION)
 						{
-							//int ap, int ga, int co, int stat
 							Reservation r=new Reservation(currUser.getUserId(), game, console, 1);
 							if(rdao.create(r))
 							{
 								JOptionPane.showMessageDialog(null, "Réservation "+r.getReservationId()+" réussie");
-								//Reservation complete=rdao.find(Integer.toString(r.getReservationId()));
 								Copy leastBorrowed=Ptolemy.findLeastBorrowed(v);
 								Reservation complete=rdao.find(Integer.toString(r.getReservationId()));
-								complete.setReservationStatus(2);
+								complete.setReservationStatus(3);
 								rdao.update(complete);
 								if(leastBorrowed!=null)
 								{

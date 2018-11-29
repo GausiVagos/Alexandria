@@ -94,12 +94,6 @@ public class NewCopyFrame extends JFrame {
 				if(!listOfGames.isSelectionEmpty())
 				{
 					setListOfConsoles(Ptolemy.consolesFromVersions(vdao.findFromGame(Integer.toString(indexesG.get(listOfGames.getSelectedIndex())))));
-					/*String msg ="";
-					for(Console c : Ptolemy.consolesFromVersions(vdao.findFromGame(Integer.toString(indexesG.get(listOfGames.getSelectedIndex())))))
-					{
-						msg+=c.getShortName()+" ";
-					}
-					JOptionPane.showMessageDialog(null, msg);*/
 				}
 					
 			}
@@ -148,7 +142,7 @@ public class NewCopyFrame extends JFrame {
 										copyDao.update(complete);
 										
 										ReservationDAO rdao=new ReservationDAO();
-										prior.setReservationStatus(2);
+										prior.setReservationStatus(3);
 										rdao.update(prior);
 										
 										currUser=udao.find(currUser.getUserName());//On actualise encore pour avoir tous les prêts

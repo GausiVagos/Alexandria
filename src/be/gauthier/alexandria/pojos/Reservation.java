@@ -89,7 +89,7 @@ public class Reservation implements IPingable
 				break;
 			case 2 : reservationStatus="En cours";
 				break;
-			default: reservationStatus="Terminée";
+			default: reservationStatus="Traîtée";
 				break;
 		}
 	}
@@ -124,7 +124,7 @@ public class Reservation implements IPingable
 				break;
 			case 2 : reservationStatus="En cours";
 				break;
-			default: reservationStatus="Terminée";
+			default: reservationStatus="Traitée";
 				break;
 		}
 	}

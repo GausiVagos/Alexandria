@@ -91,11 +91,7 @@ public class ReservationsFrame extends JFrame {
 					int pos=listOfReservations.getSelectedIndex();
 					int id=indexes.get(pos);
 					Reservation reserv=rdao.find(Integer.toString(id));
-					if(reserv.getReservationStatus()=="En cours")
-					{
-						JOptionPane.showMessageDialog(null, "Impossible de supprimer la réservation "+id+" tant qu'elle est encore en cours.");
-					}
-					else if(reserv!=null)
+					if(reserv!=null)
 					{
 						currUser.removeReservation(reserv);
 						if(rdao.delete(reserv))

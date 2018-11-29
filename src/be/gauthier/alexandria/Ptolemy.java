@@ -382,4 +382,15 @@ public class Ptolemy //Couche métier de l'application.
 		
 		return c;
 	}
+	
+	public static boolean verifyAvailability(Copy c)
+	{
+		for(Loan l : c.getListOfLoans())
+		{
+			if(l.getPending())
+				return false;
+		}
+		
+		return true;
+	}
 }

@@ -83,6 +83,13 @@ public class HomeFrame extends JFrame {
 		contentPane.add(lblLends);
 		
 		JButton btnLends = new JButton("Voir vos pr\u00EAts");
+		btnLends.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LendsFrame lf=new LendsFrame(currUser);
+				lf.setVisible(true);
+				dispose();
+			}
+		});
 		btnLends.setBounds(349, 97, 175, 23);
 		contentPane.add(btnLends);
 		

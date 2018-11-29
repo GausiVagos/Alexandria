@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
+import be.gauthier.alexandria.Ptolemy;
 import be.gauthier.alexandria.dao.CopyDAO;
 import be.gauthier.alexandria.dao.DAO;
 import be.gauthier.alexandria.dao.UserDAO;
@@ -128,17 +129,21 @@ public class CopiesFrame extends JFrame {
 					{
 						if(JOptionPane.showConfirmDialog(null, msg, "Modification", JOptionPane.OK_CANCEL_OPTION)==0)
 						{
-							if(copy.getAvailability())
-								copy.setAvailability(false);
+							if(Ptolemy.verifyAvailability(copy))
+							{
+								copy.setAvailability(!copy.getAvailability());
+								copy.ping();
+								String row="Id : "+copy.getCopyId()+" / Jeu : "+copy.getGameObj().getGameTitle()+" / Console : "+copy.getConsoleObj().getShortName()+" / ";
+								row+= copy.getAvailability()? "Disponible" : "Indisponible";
+								model.set(pos, row);
+								dao.update(copy);
+								UserDAO udao=new UserDAO();
+								currUser=udao.find(currUser.getUserName());
+							}
 							else
-								copy.setAvailability(true);
-							copy.ping();
-							String row="Id : "+copy.getCopyId()+" / Jeu : "+copy.getGameObj().getGameTitle()+" / Console : "+copy.getConsoleObj().getShortName()+" / ";
-							row+= copy.getAvailability()? "Disponible" : "Indisponible";
-							model.set(pos, row);
-							dao.update(copy);
-							UserDAO udao=new UserDAO();
-							currUser=udao.find(currUser.getUserName());
+							{
+								JOptionPane.showMessageDialog(null,"Il semblerait que cette copie soit sujet d'un prêt encore en cours."+System.getProperty("line.separator")+"Veuillez mettre fin à celui-ci avant de remettre cette copie en circulation");
+							}
 						}
 					}
 				}

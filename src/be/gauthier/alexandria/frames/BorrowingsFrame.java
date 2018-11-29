@@ -95,7 +95,7 @@ public class BorrowingsFrame extends JFrame {
 		JButton btnRemove = new JButton("Supprimer l'emprunt");
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(!listOfBorrowings.isSelectionEmpty()&&JOptionPane.showConfirmDialog(null, "Etes-vous sûr de vouloir supprimer cette réservation?", "Suppression", JOptionPane.OK_CANCEL_OPTION)==0)
+				if(!listOfBorrowings.isSelectionEmpty()&&JOptionPane.showConfirmDialog(null, "Etes-vous sûr de vouloir supprimer cet emprunt?", "Suppression", JOptionPane.OK_CANCEL_OPTION)==0)
 				{
 					DefaultListModel model = (DefaultListModel) listOfBorrowings.getModel();
 					int pos=listOfBorrowings.getSelectedIndex();
