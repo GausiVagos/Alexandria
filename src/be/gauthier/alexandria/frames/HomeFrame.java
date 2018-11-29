@@ -92,6 +92,13 @@ public class HomeFrame extends JFrame {
 		contentPane.add(lblBor);
 		
 		JButton btnVoirVosEmprunts = new JButton("Voir vos emprunts");
+		btnVoirVosEmprunts.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				BorrowingsFrame b=new BorrowingsFrame(currUser);
+				b.setVisible(true);
+				dispose();
+			}
+		});
 		btnVoirVosEmprunts.setBounds(349, 128, 175, 23);
 		contentPane.add(btnVoirVosEmprunts);
 		
