@@ -91,7 +91,7 @@ public class LoanDAO extends DAO<Loan>
 		if(toModify!=null)
 		{
 			Statement stmt=null;
-			String modify="update Loan set lender="+modified.getLender()+", borrower="+modified.getBorrower()+", startDate= DATE'"+modified.getStartDate()+"', pending ='"+modified.getPending()+"', gameCopy="+modified.getGameCopy()+" where loanId="+toModify.getLoanId()+";";
+			String modify="update Loan set copyHasBeenReturned="+modified.getCopyState() +", pending ="+modified.getPending()+" where loanId="+toModify.getLoanId()+";";
 			try
 			{
 				stmt=connect.createStatement();
@@ -132,7 +132,7 @@ public class LoanDAO extends DAO<Loan>
 			res=stmt.executeQuery(sql);
 			if(res.next())//Pour une raison inconnue, le first() provoque une exception là ou le next() marche parfaitement. Je ne cherche plus à comprendre.
 			{
-				researched=new Loan(res.getInt(1),res.getInt(2),res.getInt(3),res.getDate(4),res.getBoolean(5),res.getInt(6));
+				researched=new Loan(res.getInt("loanId"),res.getInt("lender"),res.getInt("borrower"),res.getDate("startDate"),res.getBoolean("copyHasBeenReturned"),res.getBoolean("pending"), res.getInt("gameCopy"));
 			}	
 			
 		}

@@ -18,6 +18,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import be.gauthier.alexandria.dao.LoanDAO;
+import be.gauthier.alexandria.dao.UserDAO;
 import be.gauthier.alexandria.pojos.Copy;
 import be.gauthier.alexandria.pojos.Loan;
 import be.gauthier.alexandria.pojos.Reservation;
@@ -69,7 +70,7 @@ public class BorrowingsFrame extends JFrame {
 			Copy c=l.getGameCopyObj();
 			c.ping();
 			String row="Id : "+l.getLoanId()+" / Jeu : "+c.getGameObj().getGameTitle()+" / Console : "+c.getConsoleObj().getShortName()+" / Propriétaire : "+c.getOwnerObj().getUserName()+" / Date de début : "+l.getStartDate()+" / ";
-			row+= l.getPending()? "En cours" : "Terminé";
+			row+= !l.getPending()? "Terminé" : l.getCopyState()? "Copie rendue" : "En cours";
 			list.addElement(row);
 			indexes.add(l.getLoanId());
 		}
@@ -102,7 +103,7 @@ public class BorrowingsFrame extends JFrame {
 					Loan borr=ldao.find(Integer.toString(id));
 					if(borr.getPending())
 					{
-						JOptionPane.showMessageDialog(null, "Impossible de supprimer cet emprunt "+id+" tant qu'il est encore en cours.");
+						JOptionPane.showMessageDialog(null, "Impossible de supprimer l'emprunt "+id+" tant qu'il est encore en cours.");
 					}
 					else if(borr!=null)
 					{
@@ -111,7 +112,7 @@ public class BorrowingsFrame extends JFrame {
 						{
 							model.remove(pos);
 							indexes.remove(pos);
-							JOptionPane.showMessageDialog(null, "Réservation numéro "+id+" supprimée.");
+							JOptionPane.showMessageDialog(null, "Emprunt numéro "+id+" supprimé.");
 						}
 						else
 							JOptionPane.showMessageDialog(null, "Suppression impossible. Veuillez recommencer ultérieurement.");
@@ -120,7 +121,34 @@ public class BorrowingsFrame extends JFrame {
 			}
 		});
 		btnRemove.setBackground(new Color(165, 42, 42));
-		btnRemove.setBounds(10, 222, 230, 25);
+		btnRemove.setBounds(10, 265, 230, 25);
 		contentPane.add(btnRemove);
+		
+		JButton btnEnd = new JButton("Mettre fin \u00E0 l'emprunt");
+		btnEnd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(!listOfBorrowings.isSelectionEmpty())
+				{
+					DefaultListModel model = (DefaultListModel) listOfBorrowings.getModel();
+					int pos=listOfBorrowings.getSelectedIndex();
+					int id=indexes.get(pos);
+					Loan borr=ldao.find(Integer.toString(id));
+					if(!borr.getCopyState()&&JOptionPane.showConfirmDialog(null, "Confirmez vous avoir rendu cette copie?", "Fin d'emprunt", JOptionPane.OK_CANCEL_OPTION)==0)
+					{
+						borr.setCopyState(true);
+						ldao.update(borr);
+						borr.ping();
+						Copy c=borr.getGameCopyObj();
+						c.ping();
+						String row="Id : "+borr.getLoanId()+" / Jeu : "+c.getGameObj().getGameTitle()+" / Console : "+c.getConsoleObj().getShortName()+" / Propriétaire : "+c.getOwnerObj().getUserName()+" / Date de début : "+borr.getStartDate()+" / ";
+						row+= !borr.getPending()? "Terminé" : borr.getCopyState()? "Copie rendue" : "En cours";
+						model.set(pos, row);
+					}
+				}
+			}
+		});
+		btnEnd.setBackground(Color.ORANGE);
+		btnEnd.setBounds(10, 222, 230, 25);
+		contentPane.add(btnEnd);
 	}
 }

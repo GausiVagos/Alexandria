@@ -143,7 +143,7 @@ public class CopyDAO extends DAO<Copy>
 				res=stmt.executeQuery(sql);
 				while(res.next())
 				{
-					researched.addLoan(new Loan(res.getInt(1),res.getInt(2),res.getInt(3),res.getDate(4),res.getBoolean(5),res.getInt(6)));
+					researched.addLoan(new Loan(res.getInt(1),res.getInt(2),res.getInt(3),res.getDate(4),res.getBoolean(5),res.getBoolean(6),res.getInt(7)));
 				}
 			}	
 			

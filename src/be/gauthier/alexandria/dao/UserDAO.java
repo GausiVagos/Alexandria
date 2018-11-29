@@ -156,14 +156,14 @@ public class UserDAO extends DAO<User>
 				res=stmt.executeQuery(sql);
 				while(res.next())
 				{
-					researched.addLend(new Loan(res.getInt("loanId"),res.getInt("lender"),res.getInt("borrower"),res.getDate("startDate"),res.getBoolean("pending"),res.getInt("gameCopy")));
+					researched.addLend(new Loan(res.getInt("loanId"),res.getInt("lender"),res.getInt("borrower"),res.getDate("startDate"),res.getBoolean("copyHasBeenReturned"),res.getBoolean("pending"),res.getInt("gameCopy")));
 				}
 				
 				sql="select * from Loan where borrower = "+researched.getUserId();
 				res=stmt.executeQuery(sql);
 				while(res.next())
 				{
-					researched.addBorrowing(new Loan(res.getInt("loanId"),res.getInt("lender"),res.getInt("borrower"),res.getDate("startDate"),res.getBoolean("pending"),res.getInt("gameCopy")));
+					researched.addBorrowing(new Loan(res.getInt("loanId"),res.getInt("lender"),res.getInt("borrower"),res.getDate("startDate"),res.getBoolean("copyHasBeenReturned"),res.getBoolean("pending"),res.getInt("gameCopy")));
 				}
 				
 				sql="select * from Reservation where applicant="+researched.getUserId();

@@ -9,6 +9,7 @@ public class Loan implements IPingable
 	private int lender;
 	private int borrower;
 	private Date startDate;
+	private boolean copyHasBeenReturned;
 	private boolean pending;
 	private int gameCopy;
 	
@@ -32,6 +33,10 @@ public class Loan implements IPingable
 	public Date getStartDate()
 	{
 		return startDate;
+	}
+	public boolean getCopyState()
+	{
+		return copyHasBeenReturned;
 	}
 	public boolean getPending()
 	{
@@ -79,6 +84,10 @@ public class Loan implements IPingable
 	{
 		startDate=d;
 	}
+	public void setCopyState(Boolean c)
+	{
+		copyHasBeenReturned=c;
+	}
 	public void setPending(Boolean p)
 	{
 		pending = p;
@@ -116,13 +125,12 @@ public class Loan implements IPingable
 		gameCopy=gc;
 	}
 	
-	public Loan(int id, int len, int bor, Date d, boolean pen, int gc)
+	public Loan(int id, int len, int bor, Date d, boolean cstat, boolean pen, int gc)
 	{
 		this(len,bor,pen,gc);
 		loanId=id;
 		startDate=d;
-		
-		//On ne remplit pas les champs références dans le constructeur pour éviter les boucles infinies, mais on peut les remplir en appellannt la fonction ping()
+		copyHasBeenReturned=cstat;
 	}
 	
 	@Override
