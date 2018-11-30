@@ -26,8 +26,6 @@ import be.gauthier.alexandria.pojos.Version;
 public class Ptolemy //Couche métier de l'application.
 {
 	//Fonctions liées User
-	private static String adminAnswer="N'est pas mort ce qui à jamais dort";
-	private static String modoAnswer="42";
 	private static Connection connect=AlexConn.getInstance();
 	private static UserDAO udao = new UserDAO();
 	private static ReservationDAO rdao=new ReservationDAO();
@@ -67,10 +65,23 @@ public class Ptolemy //Couche métier de l'application.
 	
 	public static String getAnswer(char grade)
 	{
+		String sql="select answer from Answers where idAnswer=";
+		
 		if(grade=='a' || grade=='A')
-			return adminAnswer;
+			sql+=1;
 		else
-			return modoAnswer;
+			sql+=2;
+		try
+		{
+			ResultSet res=connect.createStatement().executeQuery(sql);
+			if(res.next())
+			{
+				return res.getString(1);
+			}
+		}
+		catch(Exception e) {}
+		
+		return null;
 	}
 	
 	public static Set<Copy> getAvailableCopies(User u)
@@ -279,6 +290,8 @@ public class Ptolemy //Couche métier de l'application.
 					catalog.add(cr);
 				}
 			}
+			res.close();
+			stmt.close();
 		}
 		catch(SQLException ex) {}
 		finally
@@ -312,6 +325,8 @@ public class Ptolemy //Couche métier de l'application.
 			{
 				list.add(new Copy(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4),res.getBoolean(5)));
 			}
+			res.close();
+			stmt.close();
 		}
 		catch(SQLException ex)
 		{
@@ -360,6 +375,8 @@ public class Ptolemy //Couche métier de l'application.
 					c=cdao.find(Integer.toString(res.getInt(1)));
 				}
 			}
+			res.close();
+			stmt.close();
 		}
 		catch(SQLException ex)
 		{
@@ -385,6 +402,7 @@ public class Ptolemy //Couche métier de l'application.
 	
 	public static boolean verifyAvailability(Copy c)
 	{
+		c=cdao.find(c.getCopyId()+"");
 		for(Loan l : c.getListOfLoans())
 		{
 			if(l.getPending())
@@ -392,5 +410,15 @@ public class Ptolemy //Couche métier de l'application.
 		}
 		
 		return true;
+	}
+	
+	public static void setAnswer(String a)
+	{
+		String sql="Update Answers set answer='"+a+"' where idAnswer=2";
+		try
+		{
+			connect.createStatement().executeUpdate(sql);
+		}
+		catch(Exception e) {}
 	}
 }

@@ -101,7 +101,7 @@ public class VersionDAO extends DAO<Version>
 		if(toModify!=null)
 		{
 			Statement stmt=null;
-			String modify="update Version set tokenValue="+modified.getTokenValue()+", realValue ="+modified.getRealValue()+"where game="+toModify.getGame()+" and console="+toModify.getConsole()+";";
+			String modify="update Version set tokenValue="+modified.getTokenValue()+", realValue ="+modified.getRealValue()+" where game="+toModify.getGame()+" and console="+toModify.getConsole()+";";
 			try
 			{
 				stmt=connect.createStatement();
@@ -110,7 +110,7 @@ public class VersionDAO extends DAO<Version>
 			}
 			catch(SQLException ex)
 			{
-				JOptionPane.showMessageDialog(null, "Suppression impossible");
+				JOptionPane.showMessageDialog(null, "Modification impossible");
 			}
 			finally
 			{

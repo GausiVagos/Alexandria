@@ -129,17 +129,17 @@ public class RegisterFrame extends JFrame {
 									String res=JOptionPane.showInputDialog("Vous vous apprêtez à créér un "+sRank+", veuillez entrer le mot de passe correspondant à ce rang :");
 									if(!res.equals(Ptolemy.getAnswer(rank)))
 										rank='u';
-									User newUser=Ptolemy.register(login, password, age, rank);
-									if(newUser!=null)
-									{
-										HomeFrame h=new HomeFrame(newUser);
-										h.setVisible(true);
-										dispose();
-									}
-									else
-									{
-										JOptionPane.showMessageDialog(null, "Enregistrement impossible. Veuillez essayer avec un autre pseudonyme, SVP");
-									}
+								}
+								User newUser=Ptolemy.register(login, password, age, rank);
+								if(newUser!=null)
+								{
+									HomeFrame h=new HomeFrame(newUser);
+									h.setVisible(true);
+									dispose();
+								}
+								else
+								{
+									JOptionPane.showMessageDialog(null, "Enregistrement impossible. Veuillez essayer avec un autre pseudonyme, SVP");
 								}
 							}
 						}

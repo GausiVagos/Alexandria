@@ -76,12 +76,19 @@ public class BorrowingsFrame extends JFrame {
 		}
 		JList listOfBorrowings = new JList<>(list);
 		
-		JButton btnAdd = new JButton("Ajouter un emprunt");
+		JButton btnAdd = new JButton("Emprunter un jeu");
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				NewBorrowingFrame nr=new NewBorrowingFrame(currUser);
-				nr.setVisible(true);
-				dispose();
+				if(currUser.getUserTokens()>0)
+				{
+					NewBorrowingFrame nr=new NewBorrowingFrame(currUser);
+					nr.setVisible(true);
+					dispose();
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "Votre solde de tokens est négatif! Prêtez des jeux pour repasser dans le positif.");
+				}
 			}
 		});
 		btnAdd.setBackground(new Color(144, 238, 144));
@@ -124,7 +131,7 @@ public class BorrowingsFrame extends JFrame {
 		btnRemove.setBounds(10, 265, 230, 25);
 		contentPane.add(btnRemove);
 		
-		JButton btnEnd = new JButton("Mettre fin \u00E0 l'emprunt");
+		JButton btnEnd = new JButton("Mettre fin à l'emprunt");
 		btnEnd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(!listOfBorrowings.isSelectionEmpty())
@@ -143,6 +150,8 @@ public class BorrowingsFrame extends JFrame {
 						String row="Id : "+borr.getLoanId()+" / Jeu : "+c.getGameObj().getGameTitle()+" / Console : "+c.getConsoleObj().getShortName()+" / Propriétaire : "+c.getOwnerObj().getUserName()+" / Date de début : "+borr.getStartDate()+" / ";
 						row+= !borr.getPending()? "Terminé" : borr.getCopyState()? "Copie rendue" : "En cours";
 						model.set(pos, row);
+						UserDAO udao=new UserDAO();
+						currUser=udao.find(currUser.getUserName());
 					}
 				}
 			}

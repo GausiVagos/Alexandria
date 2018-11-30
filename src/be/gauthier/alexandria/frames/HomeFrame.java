@@ -25,7 +25,7 @@ public class HomeFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 550, 300);
 		contentPane = new JPanel();
-		contentPane.setBackground(new Color(245, 245, 220));
+		contentPane.setBackground(new Color(238, 232, 170));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
@@ -124,5 +124,35 @@ public class HomeFrame extends JFrame {
 		});
 		btnReserv.setBounds(349, 159, 175, 23);
 		contentPane.add(btnReserv);
+		
+		if(currUser.getUserRank().equals("Modérateur") || currUser.getUserRank().equals("Administrateur"))
+		{
+			JButton btnModo = new JButton("Options de mod\u00E9rateur");
+			btnModo.setBackground(new Color(218, 165, 32));
+			btnModo.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ModeratorFrame m=new ModeratorFrame(currUser);
+					m.setVisible(true);
+					dispose();
+				}
+			});
+			btnModo.setBounds(146, 227, 185, 23);
+			contentPane.add(btnModo);
+		}	
+		
+		if(currUser.getUserRank().equals("Administrateur"))
+		{
+			JButton btnAdmin = new JButton("Options d'administrateur");
+			btnAdmin.setBackground(new Color(184, 134, 11));
+			btnAdmin.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					AdminFrame a=new AdminFrame(currUser);
+					a.setVisible(true);
+					dispose();
+				}
+			});
+			btnAdmin.setBounds(339, 227, 185, 23);
+			contentPane.add(btnAdmin);
+		}
 	}
 }

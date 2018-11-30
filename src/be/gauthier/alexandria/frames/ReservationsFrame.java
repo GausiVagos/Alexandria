@@ -69,9 +69,16 @@ public class ReservationsFrame extends JFrame {
 		JButton btnAdd = new JButton("Ajouter une réservation");
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				NewReservationFrame nr=new NewReservationFrame(currUser);
-				nr.setVisible(true);
-				dispose();
+				if(currUser.getUserTokens()>0)
+				{
+					NewReservationFrame nr=new NewReservationFrame(currUser);
+					nr.setVisible(true);
+					dispose();
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "Votre solde de tokens est négatif! Prêtez des jeux pour repasser dans le positif.");
+				}
 			}
 		});
 		btnAdd.setBackground(new Color(144, 238, 144));

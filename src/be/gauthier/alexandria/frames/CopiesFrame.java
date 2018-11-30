@@ -58,7 +58,7 @@ public class CopiesFrame extends JFrame {
 		}
 		JList listOfCopies = new JList<>(list);
 		
-		JButton btnDelete = new JButton("Supprimer la copie s\u00E9lectionn\u00E9e");
+		JButton btnDelete = new JButton("Supprimer la copie sélectionnée");
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(!listOfCopies.isSelectionEmpty()&&JOptionPane.showConfirmDialog(null, "Etes-vous sûr de vouloir supprimer cette copie?", "Suppression", JOptionPane.OK_CANCEL_OPTION)==0)
@@ -67,7 +67,7 @@ public class CopiesFrame extends JFrame {
 					int pos=listOfCopies.getSelectedIndex();
 					int id=indexes.get(pos);
 					Copy copy=dao.find(Integer.toString(id));
-					if(copy!=null)
+					if(copy!=null&&Ptolemy.verifyAvailability(copy))
 					{
 						currUser.removeCopy(copy);
 						if(dao.delete(copy))
@@ -75,9 +75,14 @@ public class CopiesFrame extends JFrame {
 							model.remove(pos);
 							indexes.remove(pos);
 							JOptionPane.showMessageDialog(null, "Copie numéro "+id+" supprimée.");
+							currUser=new UserDAO().find(currUser.getUserName());
 						}
 						else
 							JOptionPane.showMessageDialog(null, "Suppression impossible. Veuillez recommencer ultérieurement.");
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(null, "Cette copie est encore l'objet d'un prêt de votre part, impossible de la supprimer maintenant");
 					}
 				}
 			}

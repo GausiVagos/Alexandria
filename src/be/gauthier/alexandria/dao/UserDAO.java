@@ -1,7 +1,15 @@
 package be.gauthier.alexandria.dao;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashSet;
+
 import javax.swing.JOptionPane;
-import be.gauthier.alexandria.pojos.*;
+
+import be.gauthier.alexandria.pojos.Copy;
+import be.gauthier.alexandria.pojos.Loan;
+import be.gauthier.alexandria.pojos.Reservation;
+import be.gauthier.alexandria.pojos.User;
 
 public class UserDAO extends DAO<User> 
 {
@@ -180,9 +188,9 @@ public class UserDAO extends DAO<User>
 				{
 					researched.addCopy(new Copy(res.getInt(1),res.getInt(2),res.getInt(3),res.getInt(4),res.getBoolean(5)));
 				}
-				res.close();
-				stmt.close();
 			}
+			res.close();
+			stmt.close();
 		}
 		catch(SQLException ex)
 		{
@@ -205,5 +213,46 @@ public class UserDAO extends DAO<User>
 		
 		
 		return researched;
+	}
+	
+	public HashSet<User> getAll()
+	{
+		HashSet<User> allUsers=new HashSet<>();
+		Statement stmt=null;
+		ResultSet res=null;
+		String sql="select * from User";
+		try
+		{
+			stmt=connect.createStatement();
+			res=stmt.executeQuery(sql);
+			 
+			while(res.next())
+			{
+				allUsers.add(new User(res.getInt("userId"), res.getString("userName"), res.getString("password"), res.getInt("age"), res.getFloat("rating"), res.getString("userRank").toCharArray()[0], res.getInt("userTokens"), res.getInt("guarantee"), res.getDate("inscriptionDate")));
+				//On se passe des listes de références
+			}
+			res.close();
+			stmt.close();
+		}
+		catch(SQLException ex)
+		{
+			JOptionPane.showMessageDialog(null, "Erreur de requête");
+		}
+		finally
+		{
+			try
+			{
+				if(res!=null)
+					res.close();
+				if(stmt!=null)
+					stmt.close();
+			}
+			catch(SQLException ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+		
+		return allUsers;
 	}
 }

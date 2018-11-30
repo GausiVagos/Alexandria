@@ -82,7 +82,7 @@ public class LendsFrame extends JFrame {
 		scrollPane.setBounds(10, 61, 564, 219);
 		contentPane.add(scrollPane);
 		
-		JButton btnRemove = new JButton("Supprimer le pr\u00EAt");
+		JButton btnRemove = new JButton("Supprimer le prêt");
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(!listOfLends.isSelectionEmpty()&&JOptionPane.showConfirmDialog(null, "Etes-vous sûr de vouloir supprimer ce prêt?", "Suppression", JOptionPane.OK_CANCEL_OPTION)==0)
@@ -91,24 +91,28 @@ public class LendsFrame extends JFrame {
 					int pos=listOfLends.getSelectedIndex();
 					int id=indexes.get(pos);
 					Loan loan=ldao.find(Integer.toString(id));
-					if(loan.getPending())
+					if(loan!=null)
 					{
-						JOptionPane.showMessageDialog(null, "Impossible de supprimer l'emprunt "+id+" tant qu'il est encore en cours.");
-					}
-					else if(loan!=null)
-					{
-						currUser.removeBorrowing(loan);
-						if(ldao.delete(loan))
+						if(loan.getPending())
 						{
-							model.remove(pos);
-							indexes.remove(pos);
-							JOptionPane.showMessageDialog(null, "Prêt numéro "+id+" supprimé.");
+							JOptionPane.showMessageDialog(null, "Impossible de supprimer l'emprunt "+id+" tant qu'il est encore en cours.");
 						}
-						else
-							JOptionPane.showMessageDialog(null, "Suppression impossible. Veuillez recommencer ultérieurement.");
-						UserDAO udao=new UserDAO();
-						currUser=udao.find(currUser.getUserName());
+						else 
+						{
+							currUser.removeLend(loan);
+							if(ldao.delete(loan))
+							{
+								model.remove(pos);
+								indexes.remove(pos);
+								JOptionPane.showMessageDialog(null, "Prêt numéro "+id+" supprimé.");
+							}
+							else
+								JOptionPane.showMessageDialog(null, "Suppression impossible. Veuillez recommencer ultérieurement.");
+							UserDAO udao=new UserDAO();
+							currUser=udao.find(currUser.getUserName());
+						}
 					}
+					
 				}
 			}
 		});
@@ -125,7 +129,8 @@ public class LendsFrame extends JFrame {
 					int pos=listOfLends.getSelectedIndex();
 					int id=indexes.get(pos);
 					Loan loan=ldao.find(Integer.toString(id));
-					if(JOptionPane.showConfirmDialog(null, "Confirmez vous avoir récupéré cette copie?", "Fin d'emprunt", JOptionPane.OK_CANCEL_OPTION)==0)
+					
+					if(loan!=null && JOptionPane.showConfirmDialog(null, "Confirmez vous avoir récupéré cette copie?", "Fin d'emprunt", JOptionPane.OK_CANCEL_OPTION)==0)
 					{
 						loan.setPending(false);
 						loan.setCopyState(true);
@@ -158,11 +163,11 @@ public class LendsFrame extends JFrame {
 							{
 								c.setAvailability(true);
 							}
-							CopyDAO cdao=new CopyDAO();
-							cdao.update(c);
-							UserDAO udao=new UserDAO();
-							currUser=udao.find(currUser.getUserName());
 						}
+						CopyDAO cdao=new CopyDAO();
+						cdao.update(c);
+						UserDAO udao=new UserDAO();
+						currUser=udao.find(currUser.getUserName());
 					}
 				}
 			}

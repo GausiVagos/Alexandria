@@ -145,6 +145,12 @@ public class ConnectionFrame extends JFrame {
 		contentPane.add(panel);
 		
 		JButton btnLogs = new JButton("Obtenir les logins");
+		btnLogs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DebugFrame df=new DebugFrame();
+				df.setVisible(true);
+			}
+		});
 		panel.add(btnLogs);
 		btnLogs.setBackground(new Color(169, 169, 169));
 		btnLogs.setForeground(new Color(210, 105, 30));
